@@ -1,0 +1,10 @@
+
+### macOS
+# General
+.DS_Store
+
+# Thumbnails
+._*
+
+### VSCode
+.vscode
