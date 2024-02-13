@@ -1,4 +1,4 @@
-module sgui
+module github.com/anatolypaw/sgui
 
 go 1.21.7
 

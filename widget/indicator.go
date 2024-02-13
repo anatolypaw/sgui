@@ -4,8 +4,9 @@ import (
 	"image"
 	"image/color"
 	"log/slog"
-	"sgui/entity"
-	"sgui/painter"
+
+	"github.com/anatolypaw/sgui/entity"
+	"github.com/anatolypaw/sgui/painter"
 )
 
 // Имеет неограниченное количество переключающихся состояний

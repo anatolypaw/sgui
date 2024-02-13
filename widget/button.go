@@ -4,9 +4,10 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"sgui/entity"
-	"sgui/painter"
-	"sgui/text2img"
+
+	"github.com/anatolypaw/sgui/entity"
+	"github.com/anatolypaw/sgui/painter"
+	"github.com/anatolypaw/sgui/text2img"
 )
 
 // Имеет неограниченное количество переключающихся состояний
