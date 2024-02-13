@@ -5,6 +5,8 @@ import (
 	"image/color"
 	"image/draw"
 	"sgui/entity"
+	"sgui/painter"
+	"sgui/text2img"
 )
 
 // Имеет неограниченное количество переключающихся состояний

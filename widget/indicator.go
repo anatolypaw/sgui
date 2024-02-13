@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"log/slog"
 	"sgui/entity"
-	"terminal/pkg/sgui/painter"
+	"sgui/painter"
 )
 
 // Имеет неограниченное количество переключающихся состояний
