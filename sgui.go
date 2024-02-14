@@ -12,6 +12,7 @@ import (
 
 type Canvas struct {
 	display    *image.RGBA //
+	buff       *image.RGBA
 	background *image.RGBA
 
 	objects     []Object // виджеты и их положение на дисплее
@@ -37,9 +38,13 @@ type IWidget interface {
 }
 
 func New(display *image.RGBA, input IInput) (Canvas, error) {
+
+	buff := image.NewRGBA(display.Rect)
+
 	return Canvas{
 		display:     display,
 		inputDevice: input,
+		buff:        buff,
 	}, nil
 }
 
@@ -132,24 +137,21 @@ func (ths *Canvas) ReleaseHandler() {
 func (ths *Canvas) Render() {
 
 	start := time.Now()
-
-	buff := *ths.display
-
 	// Сначала рисуем background
 	if ths.background != nil {
-		copy(buff.Pix, ths.background.Pix)
+		ths.buff.Pix = ths.background.Pix
 	}
 
 	// Отрисовка на дисплей объектов в порядке их добавления
 	for _, o := range ths.objects {
 		draw.Draw(
-			&buff,
-			buff.Bounds(),
+			ths.buff,
+			ths.buff.Bounds(),
 			o.Widget.Render(),
 			image.Point{o.Position.X, o.Position.Y},
 			draw.Over)
 	}
 
-	copy(ths.display.Pix, buff.Pix)
+	ths.display.Pix = ths.buff.Pix
 	log.Printf("Rendering  %v\n", time.Since(start))
 }
