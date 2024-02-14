@@ -149,6 +149,6 @@ func (ths *Canvas) Render() {
 			ths.display.Bounds(),
 			o.Widget.Render(),
 			image.Point{o.Position.X, o.Position.Y},
-			draw.Over)
+			draw.Src)
 	}
 }
