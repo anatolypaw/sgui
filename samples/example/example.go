@@ -25,7 +25,7 @@ func main() {
 	gui.SetBackground(color.RGBA{50, 50, 50, 255})
 
 	// Создаем виджеты
-	button := widget.NewButton(widget.Button{
+	button := widget.NewButton(widget.ButtonParam{
 		Size:      image.Point{X: 120, Y: 40},
 		Onclick:   nil,
 		Label:     "I'm button",

@@ -14,7 +14,7 @@ import (
 // 1) Сначала нужно создать состояние через AddState()
 // 2) Для изменения состояния испольузется SetState()
 
-type button struct {
+type Button struct {
 	size         image.Point
 	onClick      func()
 	currentState int  // Текущее состояние
@@ -24,14 +24,14 @@ type button struct {
 	pressedRenser  *image.RGBA
 }
 
-type Button struct {
+type ButtonParam struct {
 	Size      image.Point
 	Onclick   func()
 	Label     string
 	LabelSize float64
 }
 
-func NewButton(b Button) *button {
+func NewButton(b ButtonParam) *Button {
 	if b.Size.X <= 0 {
 		b.Size.X = 1
 	}
@@ -84,7 +84,7 @@ func NewButton(b Button) *button {
 		textMidPos,
 		draw.Over)
 
-	return &button{
+	return &Button{
 		size:           b.Size,
 		onClick:        b.Onclick,
 		releasedRender: releasedRender,
@@ -92,7 +92,7 @@ func NewButton(b Button) *button {
 	}
 }
 
-func (w *button) Render() *image.RGBA {
+func (w *Button) Render() *image.RGBA {
 	if w.tapped {
 		return w.pressedRenser
 	} else {
@@ -101,13 +101,13 @@ func (w *button) Render() *image.RGBA {
 }
 
 // Вызвать при нажатии на кнопку
-func (w *button) Tap() {
+func (w *Button) Tap() {
 	w.currentState = 1
 	w.tapped = true
 }
 
 // Вызвать при отпускании кнопки
-func (w *button) Release() {
+func (w *Button) Release() {
 	if w.tapped {
 		w.Click()
 	}
@@ -116,13 +116,13 @@ func (w *button) Release() {
 }
 
 // Вызвывается когда предварительно нажатая кнопка была отпущенна
-func (w *button) Click() {
+func (w *Button) Click() {
 
 	if w.onClick != nil {
 		go w.onClick()
 	}
 }
 
-func (w *button) Size() image.Point {
+func (w *Button) Size() image.Point {
 	return w.size
 }
