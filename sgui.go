@@ -150,6 +150,6 @@ func (ths *Canvas) Render() {
 			draw.Over)
 	}
 
-	ths.display.Pix = buff.Pix
+	copy(ths.display.Pix, buff.Pix)
 	log.Printf("Rendering  %v\n", time.Since(start))
 }
