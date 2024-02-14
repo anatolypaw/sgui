@@ -105,8 +105,8 @@ func (ths *Canvas) TapHandler(event IEvent) {
 		wpos := image.Rect(
 			o.Position.X,
 			o.Position.Y,
-			o.Widget.Size().X,
-			o.Widget.Size().Y,
+			o.Widget.Size().X+o.Position.X,
+			o.Widget.Size().Y+o.Position.Y,
 		)
 
 		// Если позиция тапа внутри виджета, то вызываем обработку тапа
