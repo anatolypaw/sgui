@@ -58,7 +58,7 @@ func (ths *Canvas) Size() image.Point {
 func (ui *Canvas) AddWidget(x int, y int, w IWidget) {
 	obj := Object{
 		Widget:   w,
-		Position: image.Point{X: -x, Y: -y},
+		Position: image.Point{X: x, Y: y},
 	}
 	ui.objects = append(ui.objects, obj)
 }
@@ -148,7 +148,7 @@ func (ths *Canvas) Render() {
 			ths.display,
 			ths.display.Bounds(),
 			o.Widget.Render(),
-			image.Point{o.Position.X, o.Position.Y},
+			image.Point{-o.Position.X, -o.Position.Y},
 			draw.Src)
 	}
 }
