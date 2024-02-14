@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Sgui struct {
+type Canvas struct {
 	display draw.Image //
 
 	objects     []Object // виджеты и их положение на дисплее
@@ -33,15 +33,15 @@ type IWidget interface {
 	Release()
 }
 
-func New(display draw.Image, input IInput) (Sgui, error) {
-	return Sgui{
+func New(display draw.Image, input IInput) (Canvas, error) {
+	return Canvas{
 		display:     display,
 		inputDevice: input,
 	}, nil
 }
 
 // Возвращает размер дисплея
-func (ths *Sgui) Size() image.Point {
+func (ths *Canvas) Size() image.Point {
 	return image.Point{
 		X: ths.display.Bounds().Max.X,
 		Y: ths.display.Bounds().Max.Y,
@@ -49,7 +49,7 @@ func (ths *Sgui) Size() image.Point {
 }
 
 // Добавляет объект (widget) на холст
-func (ui *Sgui) AddWidget(x int, y int, w IWidget) {
+func (ui *Canvas) AddWidget(x int, y int, w IWidget) {
 	obj := Object{
 		Widget:   w,
 		Position: image.Point{X: -x, Y: -y},
@@ -60,7 +60,7 @@ func (ui *Sgui) AddWidget(x int, y int, w IWidget) {
 // Обрабатывает события ввода
 // События обрабатываем в горутинах, что бы не пропустить
 // новые приходящие события
-func (ths *Sgui) StartInputEventHandler() {
+func (ths *Canvas) StartInputEventHandler() {
 	go func() {
 		for {
 			event := ths.inputDevice.GetEvent()
@@ -77,10 +77,23 @@ func (ths *Sgui) StartInputEventHandler() {
 // Обработка нажатия
 // Ищем какой объект попал в точку нажатия и вызываем на нем
 // обработку нажатия
-func (ths *Sgui) TapHandler(event IEvent) {
+func (ths *Canvas) TapHandler(event IEvent) {
 	for _, o := range ths.objects {
-		o.Widget.Tap()
+
+		// определяем положение виджета на холсте
+		wpos := image.Rect(
+			o.Position.X,
+			o.Position.Y,
+			o.Widget.Size().X,
+			o.Widget.Size().Y,
+		)
+
+		// Если позиция тапа внутри виджета, то вызываем обработку тапа
+		if event.Position().In(wpos) {
+			o.Widget.Tap()
+		}
 	}
+
 	ths.Render()
 	fmt.Printf("Event: Tap, pos %#v\n", event.Position())
 }
@@ -88,8 +101,9 @@ func (ths *Sgui) TapHandler(event IEvent) {
 // Обработка отпускания нажатия
 // Ищем какой объект попал в точку нажатия и вызываем на нем
 // обработку  отжатия
-func (ths *Sgui) ReleaseHandler() {
+func (ths *Canvas) ReleaseHandler() {
 	for _, o := range ths.objects {
+
 		o.Widget.Release()
 	}
 	ths.Render()
@@ -97,7 +111,7 @@ func (ths *Sgui) ReleaseHandler() {
 }
 
 // Отрисовывает объекты на дисплей
-func (ths *Sgui) Render() {
+func (ths *Canvas) Render() {
 
 	start := time.Now()
 
