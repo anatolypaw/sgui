@@ -20,6 +20,9 @@ type Button struct {
 	currentState int  // Текущее состояние
 	tapped       bool // Флаг, что кнопка нажата
 
+	// Флаг, что изображение изменилось.
+	// Сбрасывется после рендеринга
+	updated        bool
 	releasedRender *image.RGBA
 	pressedRenser  *image.RGBA
 }
@@ -89,10 +92,12 @@ func NewButton(b ButtonParam) *Button {
 		onClick:        b.Onclick,
 		releasedRender: releasedRender,
 		pressedRenser:  pressedRender,
+		updated:        true,
 	}
 }
 
 func (w *Button) Render() *image.RGBA {
+	w.updated = false
 	if w.tapped {
 		return w.pressedRenser
 	} else {
@@ -102,17 +107,23 @@ func (w *Button) Render() *image.RGBA {
 
 // Вызвать при нажатии на кнопку
 func (w *Button) Tap() {
-	w.currentState = 1
-	w.tapped = true
+	if w.currentState == 0 {
+		w.currentState = 1
+		w.tapped = true
+		w.updated = true
+	}
+
 }
 
 // Вызвать при отпускании кнопки
 func (w *Button) Release() {
 	if w.tapped {
+		w.currentState = 0
+		w.tapped = false
+		w.updated = true
 		w.Click()
 	}
-	w.currentState = 0
-	w.tapped = false
+
 }
 
 // Вызвывается когда предварительно нажатая кнопка была отпущенна
@@ -125,4 +136,8 @@ func (w *Button) Click() {
 
 func (w *Button) Size() image.Point {
 	return w.size
+}
+
+func (w *Button) Updated() bool {
+	return w.updated
 }

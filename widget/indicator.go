@@ -21,13 +21,17 @@ type BitIndicator struct {
 	size         int
 	currentState int // Текущее состояние
 	states       []bitIndicatorState
+
+	// Флаг, что изображение изменилось.
+	// Сбрасывется после рендеринга
+	updated bool
 }
 
 func NewIndicator(size int) *BitIndicator {
 	if size <= 0 {
 		size = 1
 	}
-	return &BitIndicator{size: size}
+	return &BitIndicator{size: size, updated: true}
 }
 
 func (w *BitIndicator) AddState(c color.Color) {
@@ -52,7 +56,10 @@ func (w *BitIndicator) SetState(s int) {
 		return
 	}
 
-	w.currentState = s
+	if w.currentState != s {
+		w.currentState = s
+		w.updated = true
+	}
 
 }
 
@@ -69,6 +76,7 @@ func (w *BitIndicator) Render() *image.RGBA {
 		w.AddState(color.RGBA{0, 0, 0, 0})
 		slog.Error("No states for BitIndicator. Created empty state")
 	}
+	w.updated = false
 	return w.states[w.currentState].img
 }
 
@@ -83,4 +91,8 @@ func (w *BitIndicator) Size() image.Point {
 		w.size,
 		w.size,
 	}
+}
+
+func (w *BitIndicator) Updated() bool {
+	return w.updated
 }

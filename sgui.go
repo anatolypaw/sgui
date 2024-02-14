@@ -4,8 +4,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"log"
-	"time"
 
 	"github.com/anatolypaw/sgui/painter"
 )
@@ -31,9 +29,10 @@ type IInput interface {
 
 // -
 type IWidget interface {
-	Render() *image.RGBA // Отрисовывает виджет
+	Render() *image.RGBA // Отрисовывает виджет, сбрасывает флаг updated
 	Size() image.Point
-	Tap() // Обработка нажатия и отпускания
+	Updated() bool //Возвращает флаг, изменилось ли изображение виджета
+	Tap()          // Обработка нажатия и отпускания
 	Release()
 }
 
@@ -136,7 +135,6 @@ func (ths *Canvas) ReleaseHandler() {
 // Отрисовывает объекты на дисплей
 func (ths *Canvas) Render() {
 
-	start := time.Now()
 	// Сначала рисуем background
 	if ths.background != nil {
 		copy(ths.buff.Pix, ths.background.Pix)
@@ -144,6 +142,12 @@ func (ths *Canvas) Render() {
 
 	// Отрисовка на дисплей объектов в порядке их добавления
 	for _, o := range ths.objects {
+		// Если изображение виджета не менялось,
+		// то и перерисовывать его не нужно. Пропускаем этот виджет
+		if !o.Widget.Updated() {
+			continue
+		}
+
 		draw.Draw(
 			ths.buff,
 			ths.buff.Bounds(),
@@ -151,7 +155,5 @@ func (ths *Canvas) Render() {
 			image.Point{o.Position.X, o.Position.Y},
 			draw.Over)
 	}
-
 	copy(ths.display.Pix, ths.buff.Pix)
-	log.Printf("Rendering  %v\n", time.Since(start))
 }

@@ -5,7 +5,9 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"log"
 	"os"
+	"time"
 
 	"github.com/anatolypaw/sgui"
 	"github.com/anatolypaw/sgui/widget"
@@ -54,7 +56,9 @@ func main() {
 	}
 
 	// Принудительно отрисовываем холст
+	start := time.Now()
 	gui.Render()
+	log.Printf("Rendering  %v\n", time.Since(start))
 
 	f, err := os.Create("example.png")
 	if err != nil {
