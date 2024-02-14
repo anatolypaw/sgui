@@ -9,9 +9,9 @@ import (
 )
 
 type Canvas struct {
-	display    *image.RGBA //
-	buff       *image.RGBA
-	background *image.RGBA
+	display          *image.RGBA //
+	background       *image.RGBA
+	backgroundRefill bool
 
 	objects     []Object // виджеты и их положение на дисплее
 	inputDevice IInput   // Устройство ввода
@@ -37,13 +37,10 @@ type IWidget interface {
 }
 
 func New(display *image.RGBA, input IInput) (Canvas, error) {
-
-	buff := image.NewRGBA(display.Rect)
-
 	return Canvas{
-		display:     display,
-		inputDevice: input,
-		buff:        buff,
+		display:          display,
+		inputDevice:      input,
+		backgroundRefill: true,
 	}, nil
 }
 
@@ -117,8 +114,6 @@ func (ths *Canvas) TapHandler(event IEvent) {
 			o.Widget.Tap()
 		}
 	}
-
-	ths.Render()
 }
 
 // Обработка отпускания нажатия
@@ -129,31 +124,31 @@ func (ths *Canvas) ReleaseHandler() {
 
 		o.Widget.Release()
 	}
-	ths.Render()
 }
 
 // Отрисовывает объекты на дисплей
 func (ths *Canvas) Render() {
 
 	// Сначала рисуем background
-	if ths.background != nil {
-		copy(ths.buff.Pix, ths.background.Pix)
+	if ths.background != nil && ths.backgroundRefill {
+		copy(ths.display.Pix, ths.background.Pix)
+		ths.backgroundRefill = false
 	}
 
 	// Отрисовка на дисплей объектов в порядке их добавления
 	for _, o := range ths.objects {
 		// Если изображение виджета не менялось,
 		// то и перерисовывать его не нужно. Пропускаем этот виджет
-		if !o.Widget.Updated() {
+		// Если была отрисовка бэкграунда, то виджет нужно снова отрисовать
+		if !o.Widget.Updated() && !ths.backgroundRefill {
 			continue
 		}
 
 		draw.Draw(
-			ths.buff,
-			ths.buff.Bounds(),
+			ths.display,
+			ths.display.Bounds(),
 			o.Widget.Render(),
 			image.Point{o.Position.X, o.Position.Y},
 			draw.Over)
 	}
-	copy(ths.display.Pix, ths.buff.Pix)
 }

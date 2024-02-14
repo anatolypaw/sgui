@@ -21,23 +21,29 @@ type BitIndicator struct {
 	size         int
 	currentState int // Текущее состояние
 	states       []bitIndicatorState
+	background   color.Color
 
 	// Флаг, что изображение изменилось.
 	// Сбрасывется после рендеринга
 	updated bool
 }
 
-func NewIndicator(size int) *BitIndicator {
+func NewIndicator(size int, background color.Color) *BitIndicator {
 	if size <= 0 {
 		size = 1
 	}
-	return &BitIndicator{size: size, updated: true}
+	return &BitIndicator{
+		size:       size,
+		updated:    true,
+		background: background,
+	}
 }
 
 func (w *BitIndicator) AddState(c color.Color) {
 	circle := painter.Circle{
 		Radius:      w.size / 2,
 		FillColor:   c,
+		BackColor:   w.background,
 		StrokeWidth: 1,
 		StrokeColor: color.RGBA{34, 34, 34, 255},
 	}

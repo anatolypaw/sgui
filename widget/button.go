@@ -34,7 +34,7 @@ type ButtonParam struct {
 	LabelSize float64
 }
 
-func NewButton(b ButtonParam) *Button {
+func NewButton(b ButtonParam, background color.Color) *Button {
 	if b.Size.X <= 0 {
 		b.Size.X = 1
 	}
@@ -50,6 +50,7 @@ func NewButton(b ButtonParam) *Button {
 		painter.Rectangle{
 			Size:         b.Size,
 			FillColor:    color.RGBA{94, 94, 94, 255},
+			BackColor:    background,
 			CornerRadius: 8,
 			StrokeWidth:  1,
 			StrokeColor:  color.RGBA{34, 34, 34, 255},
@@ -60,6 +61,7 @@ func NewButton(b ButtonParam) *Button {
 		painter.Rectangle{
 			Size:         b.Size,
 			FillColor:    color.RGBA{118, 118, 118, 255},
+			BackColor:    background,
 			CornerRadius: 8,
 			StrokeWidth:  1,
 			StrokeColor:  color.RGBA{34, 34, 34, 255},

@@ -18,7 +18,7 @@ func TestDrawCircle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			indicator := NewIndicator(tt.radius)
+			indicator := NewIndicator(tt.radius, nil)
 			img := indicator.Render()
 
 			fname := fmt.Sprintf("%s.png", tt.name)

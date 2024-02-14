@@ -15,6 +15,7 @@ const quarterCircleControl = 1 - 0.55228
 type Circle struct {
 	Radius      int
 	FillColor   color.Color
+	BackColor   color.Color
 	StrokeWidth float64
 	StrokeColor color.Color
 }
@@ -22,6 +23,7 @@ type Circle struct {
 type Rectangle struct {
 	Size         image.Point
 	FillColor    color.Color
+	BackColor    color.Color
 	CornerRadius float64
 	StrokeWidth  float64
 	StrokeColor  color.Color
@@ -35,6 +37,15 @@ func DrawCircle(c Circle) *image.RGBA {
 
 	mid := float64(c.Radius)
 	scanner := rasterx.NewScannerGV(size, size, img, img.Bounds())
+
+	if c.BackColor != nil {
+		// Заполняем фон
+		for x := 0; x < img.Rect.Dx(); x++ {
+			for y := 0; y < img.Rect.Dy(); y++ {
+				img.Set(x, y, c.BackColor)
+			}
+		}
+	}
 
 	if c.FillColor != nil {
 		// Рисуем основу
@@ -63,6 +74,15 @@ func DrawRectangle(r Rectangle) *image.RGBA {
 	img := image.NewRGBA(rect)
 
 	scanner := rasterx.NewScannerGV(r.Size.X, r.Size.Y, img, img.Bounds())
+
+	if r.BackColor != nil {
+		// Заполняем фон
+		for x := 0; x < img.Rect.Dx(); x++ {
+			for y := 0; y < img.Rect.Dy(); y++ {
+				img.Set(x, y, r.BackColor)
+			}
+		}
+	}
 
 	if r.FillColor != nil {
 		// Рисуем основу

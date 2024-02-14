@@ -25,13 +25,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	gui.SetBackground(color.RGBA{50, 50, 50, 255})
+	backcolor := color.RGBA{50, 50, 50, 255}
+	//gui.SetBackground(backcolor)
 
 	for i := 0; i < 5; i++ {
 		for n := 0; n < 10; n++ {
 			// Создаем виджеты
 
-			ind := widget.NewIndicator(20)
+			ind := widget.NewIndicator(20, backcolor)
 			ind.AddState(color.RGBA{255, 0, 0, 255})
 			ind.AddState(color.RGBA{0, 255, 0, 255})
 
@@ -46,7 +47,8 @@ func main() {
 				},
 				Label:     fmt.Sprintf("Button %v", n+(i*10)),
 				LabelSize: 20,
-			})
+			},
+				backcolor)
 
 			// Добавляем виджеты
 			gui.AddWidget(10+i*160, 10+(n*47), button)
