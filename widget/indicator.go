@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"log/slog"
 
-	"github.com/anatolypaw/sgui/entity"
 	"github.com/anatolypaw/sgui/painter"
 )
 
@@ -75,9 +74,9 @@ func (w *BitIndicator) Tap() {
 func (w *BitIndicator) Release() {
 }
 
-func (w *BitIndicator) Size() entity.Size {
-	return entity.Size{
-		Width:  w.size,
-		Height: w.size,
+func (w *BitIndicator) Size() image.Point {
+	return image.Point{
+		w.size,
+		w.size,
 	}
 }
