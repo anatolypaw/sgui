@@ -26,6 +26,7 @@ func main() {
 	backcolor := color.RGBA{50, 50, 50, 255}
 	gui.SetBackground(backcolor)
 
+	// Заполним виджетами весь экран
 	for i := 0; i < 5; i++ {
 		for n := 0; n < 10; n++ {
 			// Создаем виджеты
