@@ -8,81 +8,51 @@ import (
 	"time"
 )
 
-type sgui struct {
+type Sgui struct {
 	display draw.Image //
 
 	objects     []Object // виджеты и их положение на дисплее
 	inputDevice IInput   // Устройство ввода
 }
 
-type Size struct {
-	Width  int
-	Height int
+type Object struct {
+	Widget   IWidget
+	Position image.Point
 }
 
-type Position struct {
-	X int
-	Y int
-}
-
-// Интерфейсы ввода
+// Интерфейс устройства ввода
 type IInput interface {
 	GetEvent() IEvent
-}
-
-type IEvent interface {
-	Position() Position
-}
-
-type Tap struct {
-	Pos Position
-}
-
-func (t Tap) Position() Position {
-	return t.Pos
-}
-
-type Release struct {
-	Pos Position
-}
-
-func (t Release) Position() Position {
-	return t.Pos
 }
 
 // -
 type IWidget interface {
 	Render() *image.RGBA // Отрисовывает виджет
-	Size() Size
+	Size() image.Point
 	Tap() // Обработка нажатия и отпускания
 	Release()
 }
 
-type Object struct {
-	Widget   IWidget
-	Position Position
-}
-
-func New(display draw.Image, input IInput) (sgui, error) {
-	return sgui{
+func New(display draw.Image, input IInput) (Sgui, error) {
+	return Sgui{
 		display:     display,
 		inputDevice: input,
 	}, nil
 }
 
 // Возвращает размер дисплея
-func (ui *sgui) Size() Size {
-	return Size{
-		Width:  ui.display.Bounds().Max.X,
-		Height: ui.display.Bounds().Max.Y,
+func (ui *Sgui) Size() image.Point {
+	return image.Point{
+		X: ui.display.Bounds().Max.X,
+		Y: ui.display.Bounds().Max.Y,
 	}
 }
 
 // Добавляет объект (widget) на холст
-func (ui *sgui) AddWidget(x int, y int, w IWidget) {
+func (ui *Sgui) AddWidget(x int, y int, w IWidget) {
 	obj := Object{
 		Widget:   w,
-		Position: Position{X: -x, Y: -y},
+		Position: image.Point{X: -x, Y: -y},
 	}
 	ui.objects = append(ui.objects, obj)
 }
@@ -90,15 +60,15 @@ func (ui *sgui) AddWidget(x int, y int, w IWidget) {
 // Обрабатывает события ввода
 // События обрабатываем в горутинах, что бы не пропустить
 // новые приходящие события
-func (ui *sgui) StartInputWorker() {
+func (ui *Sgui) StartInputEventHandler() {
 	go func() {
 		for {
 			event := ui.inputDevice.GetEvent()
 			switch event.(type) {
-			case Tap:
-				go ui.Tap(event.Position())
-			case Release:
-				go ui.Release()
+			case EventTap:
+				go ui.TapHandler(event.Position())
+			case EventRelease:
+				go ui.ReleaseHandler()
 			}
 		}
 	}()
@@ -107,7 +77,7 @@ func (ui *sgui) StartInputWorker() {
 // Обработка нажатия
 // Ищем какой объект попал в точку нажатия и вызываем на нем
 // обработку нажатия
-func (ui *sgui) Tap(pos Position) {
+func (ui *Sgui) TapHandler(pos image.Point) {
 	for _, o := range ui.objects {
 		o.Widget.Tap()
 	}
@@ -118,7 +88,7 @@ func (ui *sgui) Tap(pos Position) {
 // Обработка отпускания нажатия
 // Ищем какой объект попал в точку нажатия и вызываем на нем
 // обработку  отжатия
-func (ui *sgui) Release() {
+func (ui *Sgui) ReleaseHandler() {
 	for _, o := range ui.objects {
 		o.Widget.Release()
 	}
@@ -127,7 +97,7 @@ func (ui *sgui) Release() {
 }
 
 // Отрисовывает объекты на дисплей
-func (ui *sgui) Render() {
+func (ui *Sgui) Render() {
 
 	start := time.Now()
 
