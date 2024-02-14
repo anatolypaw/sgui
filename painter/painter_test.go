@@ -2,6 +2,7 @@ package painter
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"image/png"
 	"os"
@@ -47,8 +48,7 @@ func TestDrawRectangle(t *testing.T) {
 		r    Rectangle
 	}{
 		{"red", Rectangle{
-			Width:        50,
-			Height:       15,
+			Size:         image.Point{20, 50},
 			FillColor:    color.RGBA{94, 94, 94, 255},
 			CornerRadius: 5,
 			StrokeWidth:  1,

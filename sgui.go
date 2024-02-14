@@ -61,6 +61,9 @@ func (ui *Canvas) AddWidget(x int, y int, w IWidget) {
 // События обрабатываем в горутинах, что бы не пропустить
 // новые приходящие события
 func (ths *Canvas) StartInputEventHandler() {
+	if ths.inputDevice == nil {
+		return
+	}
 	go func() {
 		for {
 			event := ths.inputDevice.GetEvent()
@@ -122,7 +125,7 @@ func (ths *Canvas) Render() {
 			ths.display.Bounds(),
 			o.Widget.Render(),
 			image.Point{o.Position.X, o.Position.Y},
-			draw.Src)
+			draw.Over)
 	}
 
 	log.Printf("Rendering  %v\n", time.Since(start))

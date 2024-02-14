@@ -20,8 +20,7 @@ type Circle struct {
 }
 
 type Rectangle struct {
-	Width        int
-	Height       int
+	Size         image.Point
 	FillColor    color.Color
 	CornerRadius float64
 	StrokeWidth  float64
@@ -60,19 +59,19 @@ func DrawCircle(c Circle) *image.RGBA {
 
 // Скругленный рямоугольник с обводкой
 func DrawRectangle(r Rectangle) *image.RGBA {
-	rect := image.Rect(0, 0, r.Width, r.Height)
+	rect := image.Rect(0, 0, r.Size.X, r.Size.Y)
 	img := image.NewRGBA(rect)
 
-	scanner := rasterx.NewScannerGV(r.Width, r.Height, img, img.Bounds())
+	scanner := rasterx.NewScannerGV(r.Size.X, r.Size.Y, img, img.Bounds())
 
 	if r.FillColor != nil {
 		// Рисуем основу
-		filler := rasterx.NewFiller(r.Width, r.Height, scanner)
+		filler := rasterx.NewFiller(r.Size.X, r.Size.Y, scanner)
 		filler.SetColor(r.FillColor)
 		if r.CornerRadius <= 0 {
-			rasterx.AddRect(0, 0, float64(r.Width), float64(r.Height), 0, filler)
+			rasterx.AddRect(0, 0, float64(r.Size.X), float64(r.Size.Y), 0, filler)
 		} else {
-			rasterx.AddRoundRect(0, 0, float64(r.Width), float64(r.Height),
+			rasterx.AddRoundRect(0, 0, float64(r.Size.X), float64(r.Size.Y),
 				r.CornerRadius, r.CornerRadius,
 				0, rasterx.RoundGap, filler)
 		}
@@ -83,13 +82,13 @@ func DrawRectangle(r Rectangle) *image.RGBA {
 	if r.StrokeColor != nil && r.StrokeWidth > 0 {
 		stk := float64(r.StrokeWidth / 2.1)
 		p1x, p1y := stk, stk
-		p2x, p2y := float64(r.Width)-stk, stk
-		p3x, p3y := float64(r.Width)-stk, float64(r.Height)-stk
-		p4x, p4y := stk, float64(r.Height)-stk
+		p2x, p2y := float64(r.Size.X)-stk, stk
+		p3x, p3y := float64(r.Size.X)-stk, float64(r.Size.Y)-stk
+		p4x, p4y := stk, float64(r.Size.Y)-stk
 		rad := float64(r.CornerRadius) - r.StrokeWidth
 
 		c := quarterCircleControl * rad
-		dasher := rasterx.NewDasher(r.Width, r.Height, scanner)
+		dasher := rasterx.NewDasher(r.Size.X, r.Size.Y, scanner)
 		dasher.SetColor(r.StrokeColor)
 		dasher.SetStroke(fixed.Int26_6(r.StrokeWidth*64), 0, nil, nil, nil, 0, nil, 0)
 		if c > 0 {
