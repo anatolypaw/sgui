@@ -56,6 +56,10 @@ func (w *BitIndicator) SetState(s int) {
 
 }
 
+func (w *BitIndicator) GetState() int {
+	return w.currentState
+}
+
 func (w *BitIndicator) States() int {
 	return len(w.states)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -24,20 +25,33 @@ func main() {
 	}
 	gui.SetBackground(color.RGBA{50, 50, 50, 255})
 
-	// Создаем виджеты
-	button := widget.NewButton(widget.ButtonParam{
-		Size:      image.Point{X: 120, Y: 40},
-		Onclick:   nil,
-		Label:     "I'm button",
-		LabelSize: 20,
-	})
+	for i := 0; i < 5; i++ {
+		for n := 0; n < 10; n++ {
+			// Создаем виджеты
 
-	ind := widget.NewIndicator(20)
-	ind.AddState(color.RGBA{255, 0, 0, 255})
+			ind := widget.NewIndicator(20)
+			ind.AddState(color.RGBA{255, 0, 0, 255})
+			ind.AddState(color.RGBA{0, 255, 0, 255})
 
-	// Добавляем виджеты
-	gui.AddWidget(100, 100, button)
-	gui.AddWidget(100, 150, ind)
+			button := widget.NewButton(widget.ButtonParam{
+				Size: image.Point{X: 110, Y: 40},
+				Onclick: func() {
+					if ind.GetState() == 0 {
+						ind.SetState(1)
+					} else {
+						ind.SetState(0)
+					}
+				},
+				Label:     fmt.Sprintf("Button %v", n),
+				LabelSize: 20,
+			})
+
+			// Добавляем виджеты
+			gui.AddWidget(10+i*160, 10+(n*47), button)
+			gui.AddWidget(130+i*160, 20+(n*47), ind)
+
+		}
+	}
 
 	// Принудительно отрисовываем холст
 	gui.Render()
