@@ -41,10 +41,10 @@ func New(display draw.Image, input IInput) (Sgui, error) {
 }
 
 // Возвращает размер дисплея
-func (ui *Sgui) Size() image.Point {
+func (ths *Sgui) Size() image.Point {
 	return image.Point{
-		X: ui.display.Bounds().Max.X,
-		Y: ui.display.Bounds().Max.Y,
+		X: ths.display.Bounds().Max.X,
+		Y: ths.display.Bounds().Max.Y,
 	}
 }
 
@@ -60,15 +60,15 @@ func (ui *Sgui) AddWidget(x int, y int, w IWidget) {
 // Обрабатывает события ввода
 // События обрабатываем в горутинах, что бы не пропустить
 // новые приходящие события
-func (ui *Sgui) StartInputEventHandler() {
+func (ths *Sgui) StartInputEventHandler() {
 	go func() {
 		for {
-			event := ui.inputDevice.GetEvent()
+			event := ths.inputDevice.GetEvent()
 			switch event.(type) {
 			case EventTap:
-				go ui.TapHandler(event.Position())
+				go ths.TapHandler(event)
 			case EventRelease:
-				go ui.ReleaseHandler()
+				go ths.ReleaseHandler()
 			}
 		}
 	}()
@@ -77,35 +77,35 @@ func (ui *Sgui) StartInputEventHandler() {
 // Обработка нажатия
 // Ищем какой объект попал в точку нажатия и вызываем на нем
 // обработку нажатия
-func (ui *Sgui) TapHandler(pos image.Point) {
-	for _, o := range ui.objects {
+func (ths *Sgui) TapHandler(event IEvent) {
+	for _, o := range ths.objects {
 		o.Widget.Tap()
 	}
-	ui.Render()
-	fmt.Printf("Tap event. pos %#v\n", pos)
+	ths.Render()
+	fmt.Printf("Event: Tap, pos %#v\n", event.Position())
 }
 
 // Обработка отпускания нажатия
 // Ищем какой объект попал в точку нажатия и вызываем на нем
 // обработку  отжатия
-func (ui *Sgui) ReleaseHandler() {
-	for _, o := range ui.objects {
+func (ths *Sgui) ReleaseHandler() {
+	for _, o := range ths.objects {
 		o.Widget.Release()
 	}
-	ui.Render()
-	fmt.Println("Release")
+	ths.Render()
+	fmt.Println("Event: Release")
 }
 
 // Отрисовывает объекты на дисплей
-func (ui *Sgui) Render() {
+func (ths *Sgui) Render() {
 
 	start := time.Now()
 
 	// Отрисовка на дисплей объектов в порядке их добавления
-	for _, o := range ui.objects {
+	for _, o := range ths.objects {
 		draw.Draw(
-			ui.display,
-			ui.display.Bounds(),
+			ths.display,
+			ths.display.Bounds(),
 			o.Widget.Render(),
 			image.Point{o.Position.X, o.Position.Y},
 			draw.Src)
