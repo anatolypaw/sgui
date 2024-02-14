@@ -22,6 +22,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	gui.SetBackground(color.RGBA{50, 50, 50, 255})
 
 	// Создаем виджеты
 	button := widget.NewButton(widget.Button{
@@ -31,15 +32,10 @@ func main() {
 		LabelSize: 20,
 	})
 
-	background := widget.NewRectangle(
-		image.Point{800, 480},
-		color.RGBA{50, 50, 50, 255},
-	)
 	ind := widget.NewIndicator(20)
 	ind.AddState(color.RGBA{255, 0, 0, 255})
 
 	// Добавляем виджеты
-	gui.AddWidget(0, 0, background)
 	gui.AddWidget(100, 100, button)
 	gui.AddWidget(100, 150, ind)
 

@@ -3,13 +3,17 @@ package sgui
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"log"
 	"time"
+
+	"github.com/anatolypaw/sgui/painter"
 )
 
 type Canvas struct {
-	display draw.Image //
+	display    *image.RGBA //
+	background *image.RGBA
 
 	objects     []Object // виджеты и их положение на дисплее
 	inputDevice IInput   // Устройство ввода
@@ -33,7 +37,7 @@ type IWidget interface {
 	Release()
 }
 
-func New(display draw.Image, input IInput) (Canvas, error) {
+func New(display *image.RGBA, input IInput) (Canvas, error) {
 	return Canvas{
 		display:     display,
 		inputDevice: input,
@@ -77,6 +81,20 @@ func (ths *Canvas) StartInputEventHandler() {
 	}()
 }
 
+// Заливка заднего фона сплошным цветом
+func (ths *Canvas) SetBackground(c color.Color) {
+	ths.background = painter.DrawRectangle(
+		painter.Rectangle{
+			Size: image.Point{
+				ths.display.Bounds().Dx(),
+				ths.display.Bounds().Dy(),
+			},
+			FillColor: c,
+		},
+	)
+
+}
+
 // Обработка нажатия
 // Ищем какой объект попал в точку нажатия и вызываем на нем
 // обработку нажатия
@@ -117,6 +135,11 @@ func (ths *Canvas) ReleaseHandler() {
 func (ths *Canvas) Render() {
 
 	start := time.Now()
+
+	// Сначала рисуем background
+	if ths.background != nil {
+		copy(ths.display.Pix, ths.background.Pix)
+	}
 
 	// Отрисовка на дисплей объектов в порядке их добавления
 	for _, o := range ths.objects {
