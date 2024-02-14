@@ -42,7 +42,7 @@ func main() {
 						ind.SetState(0)
 					}
 				},
-				Label:     fmt.Sprintf("Button %v", n),
+				Label:     fmt.Sprintf("Button %v", n+(i*10)),
 				LabelSize: 20,
 			})
 
