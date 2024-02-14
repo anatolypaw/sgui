@@ -43,22 +43,25 @@ func NewButton(b Button) *button {
 	// Состояния кнопки.
 	// 0 - кнопка отжата
 	// 1 - кнопка нажата
-	releasedRender := painter.DrawRectangle(painter.Rectangle{
-		Width:        b.Size.X,
-		Height:       b.Size.Y,
-		FillColor:    color.RGBA{94, 94, 94, 255},
-		CornerRadius: 8,
-		StrokeWidth:  1,
-		StrokeColor:  color.RGBA{34, 34, 34, 255},
-	})
-	pressedRender := painter.DrawRectangle(painter.Rectangle{
-		Width:        b.Size.X,
-		Height:       b.Size.Y,
-		FillColor:    color.RGBA{118, 118, 118, 255},
-		CornerRadius: 8,
-		StrokeWidth:  1,
-		StrokeColor:  color.RGBA{34, 34, 34, 255},
-	})
+	releasedRender := painter.DrawRectangle(
+		painter.Rectangle{
+			Size:         b.Size,
+			FillColor:    color.RGBA{94, 94, 94, 255},
+			CornerRadius: 8,
+			StrokeWidth:  1,
+			StrokeColor:  color.RGBA{34, 34, 34, 255},
+		},
+	)
+
+	pressedRender := painter.DrawRectangle(
+		painter.Rectangle{
+			Size:         b.Size,
+			FillColor:    color.RGBA{118, 118, 118, 255},
+			CornerRadius: 8,
+			StrokeWidth:  1,
+			StrokeColor:  color.RGBA{34, 34, 34, 255},
+		},
+	)
 
 	// Получаем изображение текста и вычисляем его расположение
 	// для размещения в середине кнопки
