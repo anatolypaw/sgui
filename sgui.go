@@ -139,7 +139,7 @@ func (ths *Canvas) Render() {
 	start := time.Now()
 	// Сначала рисуем background
 	if ths.background != nil {
-		ths.buff.Pix = ths.background.Pix
+		copy(ths.buff.Pix, ths.background.Pix)
 	}
 
 	// Отрисовка на дисплей объектов в порядке их добавления
@@ -152,6 +152,6 @@ func (ths *Canvas) Render() {
 			draw.Over)
 	}
 
-	ths.display.Pix = ths.buff.Pix
+	copy(ths.display.Pix, ths.buff.Pix)
 	log.Printf("Rendering  %v\n", time.Since(start))
 }
