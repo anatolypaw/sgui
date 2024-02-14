@@ -1,9 +1,11 @@
 package sgui
 
 import (
+	_ "fmt"
 	"image"
 	"image/color"
 	"image/draw"
+	_ "log"
 
 	"github.com/anatolypaw/sgui/painter"
 )
@@ -112,16 +114,14 @@ func (ths *Canvas) TapHandler(event IEvent) {
 		// Если позиция тапа внутри виджета, то вызываем обработку тапа
 		if event.Position().In(wpos) {
 			o.Widget.Tap()
+			break
 		}
 	}
 }
 
-// Обработка отпускания нажатия
-// Ищем какой объект попал в точку нажатия и вызываем на нем
-// обработку  отжатия
+// Обработка отпускания нажатия для всех виджетов
 func (ths *Canvas) ReleaseHandler() {
 	for _, o := range ths.objects {
-
 		o.Widget.Release()
 	}
 }
