@@ -1,7 +1,6 @@
 package sgui
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -116,7 +115,6 @@ func (ths *Canvas) TapHandler(event IEvent) {
 	}
 
 	ths.Render()
-	fmt.Printf("Event: Tap, pos %#v\n", event.Position())
 }
 
 // Обработка отпускания нажатия
@@ -128,7 +126,6 @@ func (ths *Canvas) ReleaseHandler() {
 		o.Widget.Release()
 	}
 	ths.Render()
-	fmt.Println("Event: Release")
 }
 
 // Отрисовывает объекты на дисплей
@@ -136,20 +133,23 @@ func (ths *Canvas) Render() {
 
 	start := time.Now()
 
+	buff := *ths.display
+
 	// Сначала рисуем background
 	if ths.background != nil {
-		copy(ths.display.Pix, ths.background.Pix)
+		copy(buff.Pix, ths.background.Pix)
 	}
 
 	// Отрисовка на дисплей объектов в порядке их добавления
 	for _, o := range ths.objects {
 		draw.Draw(
-			ths.display,
-			ths.display.Bounds(),
+			&buff,
+			buff.Bounds(),
 			o.Widget.Render(),
 			image.Point{o.Position.X, o.Position.Y},
 			draw.Over)
 	}
 
+	ths.display.Pix = buff.Pix
 	log.Printf("Rendering  %v\n", time.Since(start))
 }
