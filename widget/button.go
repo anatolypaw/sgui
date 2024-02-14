@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/anatolypaw/sgui/entity"
 	"github.com/anatolypaw/sgui/painter"
 	"github.com/anatolypaw/sgui/text2img"
 )
@@ -16,7 +15,7 @@ import (
 // 2) Для изменения состояния испольузется SetState()
 
 type button struct {
-	size         entity.Size
+	size         image.Point
 	onClick      func()
 	currentState int  // Текущее состояние
 	tapped       bool // Флаг, что кнопка нажата
@@ -26,35 +25,35 @@ type button struct {
 }
 
 type Button struct {
-	Size      entity.Size
+	Size      image.Point
 	Onclick   func()
 	Label     string
 	LabelSize float64
 }
 
 func NewButton(b Button) *button {
-	if b.Size.Height <= 0 {
-		b.Size.Height = 1
+	if b.Size.X <= 0 {
+		b.Size.X = 1
 	}
 
-	if b.Size.Width <= 0 {
-		b.Size.Width = 1
+	if b.Size.Y <= 0 {
+		b.Size.Y = 1
 	}
 
 	// Состояния кнопки.
 	// 0 - кнопка отжата
 	// 1 - кнопка нажата
 	releasedRender := painter.DrawRectangle(painter.Rectangle{
-		Width:        b.Size.Width,
-		Height:       b.Size.Height,
+		Width:        b.Size.X,
+		Height:       b.Size.Y,
 		FillColor:    color.RGBA{94, 94, 94, 255},
 		CornerRadius: 8,
 		StrokeWidth:  1,
 		StrokeColor:  color.RGBA{34, 34, 34, 255},
 	})
 	pressedRender := painter.DrawRectangle(painter.Rectangle{
-		Width:        b.Size.Width,
-		Height:       b.Size.Height,
+		Width:        b.Size.X,
+		Height:       b.Size.Y,
 		FillColor:    color.RGBA{118, 118, 118, 255},
 		CornerRadius: 8,
 		StrokeWidth:  1,
@@ -65,8 +64,8 @@ func NewButton(b Button) *button {
 	// для размещения в середине кнопки
 	textimg := text2img.Text2img(b.Label, b.LabelSize)
 	textMidPos := image.Point{
-		X: -(b.Size.Width - textimg.Rect.Dx()) / 2,
-		Y: -(b.Size.Height - textimg.Rect.Dy()) / 2,
+		X: -(b.Size.X - textimg.Rect.Dx()) / 2,
+		Y: -(b.Size.Y - textimg.Rect.Dy()) / 2,
 	}
 
 	// Наносим текст на оба состояния кнопки
@@ -83,10 +82,7 @@ func NewButton(b Button) *button {
 		draw.Over)
 
 	return &button{
-		size: entity.Size{
-			Width:  b.Size.Width,
-			Height: b.Size.Height,
-		},
+		size:           b.Size,
 		onClick:        b.Onclick,
 		releasedRender: releasedRender,
 		pressedRenser:  pressedRender,
@@ -124,6 +120,6 @@ func (w *button) Click() {
 	}
 }
 
-func (w *button) Size() entity.Size {
+func (w *button) Size() image.Point {
 	return w.size
 }

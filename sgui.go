@@ -126,5 +126,4 @@ func (ths *Canvas) Render() {
 	}
 
 	log.Printf("Rendering  %v\n", time.Since(start))
-
 }
