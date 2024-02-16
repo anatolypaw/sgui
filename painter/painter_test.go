@@ -50,8 +50,8 @@ func TestDrawRectangle(t *testing.T) {
 		{"red", Rectangle{
 			Size:         image.Point{20, 50},
 			FillColor:    color.RGBA{94, 94, 94, 255},
-			CornerRadius: 5,
-			StrokeWidth:  1,
+			CornerRadius: 0,
+			StrokeWidth:  5,
 			StrokeColor:  color.RGBA{34, 34, 34, 255},
 		}},
 	}

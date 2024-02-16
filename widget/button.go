@@ -2,7 +2,6 @@ package widget
 
 import (
 	"image"
-	"image/color"
 	"image/draw"
 
 	"github.com/anatolypaw/sgui/painter"
@@ -32,48 +31,49 @@ type ButtonParam struct {
 	Onclick   func()
 	Label     string
 	LabelSize float64
+	Theme     ColorTheme
 }
 
-func NewButton(b ButtonParam, background color.Color) *Button {
-	if b.Size.X <= 0 {
-		b.Size.X = 1
+func NewButton(p ButtonParam) *Button {
+	if p.Size.X <= 0 {
+		p.Size.X = 1
 	}
 
-	if b.Size.Y <= 0 {
-		b.Size.Y = 1
+	if p.Size.Y <= 0 {
+		p.Size.Y = 1
 	}
 
 	// Состояния кнопки.
-	// 0 - кнопка отжата
-	// 1 - кнопка нажата
+	// Нормальное состояние
 	releasedRender := painter.DrawRectangle(
 		painter.Rectangle{
-			Size:         b.Size,
-			FillColor:    color.RGBA{94, 94, 94, 255},
-			BackColor:    background,
-			CornerRadius: 8,
-			StrokeWidth:  1,
-			StrokeColor:  color.RGBA{34, 34, 34, 255},
+			Size:         p.Size,
+			FillColor:    p.Theme.MainColor,
+			BackColor:    p.Theme.BackgroundColor,
+			CornerRadius: p.Theme.CornerRadius,
+			StrokeWidth:  p.Theme.StrokeWidth,
+			StrokeColor:  p.Theme.StrokeColor,
 		},
 	)
 
+	// Нажатое состояние
 	pressedRender := painter.DrawRectangle(
 		painter.Rectangle{
-			Size:         b.Size,
-			FillColor:    color.RGBA{118, 118, 118, 255},
-			BackColor:    background,
-			CornerRadius: 8,
-			StrokeWidth:  1,
-			StrokeColor:  color.RGBA{34, 34, 34, 255},
+			Size:         p.Size,
+			FillColor:    p.Theme.SecondColor,
+			BackColor:    p.Theme.BackgroundColor,
+			CornerRadius: p.Theme.CornerRadius,
+			StrokeWidth:  p.Theme.StrokeWidth,
+			StrokeColor:  p.Theme.StrokeColor,
 		},
 	)
 
 	// Получаем изображение текста и вычисляем его расположение
 	// для размещения в середине кнопки
-	textimg := text2img.Text2img(b.Label, b.LabelSize)
+	textimg := text2img.Text2img(p.Label, p.LabelSize, p.Theme.TextColor)
 	textMidPos := image.Point{
-		X: -(b.Size.X - textimg.Rect.Dx()) / 2,
-		Y: -(b.Size.Y - textimg.Rect.Dy()) / 2,
+		X: -(p.Size.X - textimg.Rect.Dx()) / 2,
+		Y: -(p.Size.Y - textimg.Rect.Dy()) / 2,
 	}
 
 	// Наносим текст на оба состояния кнопки
@@ -90,8 +90,8 @@ func NewButton(b ButtonParam, background color.Color) *Button {
 		draw.Over)
 
 	return &Button{
-		size:           b.Size,
-		onClick:        b.Onclick,
+		size:           p.Size,
+		onClick:        p.Onclick,
 		releasedRender: releasedRender,
 		pressedRenser:  pressedRender,
 		updated:        true,

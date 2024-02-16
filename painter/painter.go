@@ -98,6 +98,7 @@ func DrawRectangle(r Rectangle) *image.RGBA {
 		filler.Draw()
 	}
 
+	// BUG: рисует неправильно, если ширина обводки больше радиуса
 	// Рисуем обводку
 	if r.StrokeColor != nil && r.StrokeWidth > 0 {
 		stk := float64(r.StrokeWidth / 2.1)

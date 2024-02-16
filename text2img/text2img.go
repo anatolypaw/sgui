@@ -5,6 +5,7 @@ package text2img
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"image/png"
 	"log"
 	"os"
@@ -15,7 +16,7 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
-func Text2img(label string, size float64) *image.RGBA {
+func Text2img(label string, size float64, color color.Color) *image.RGBA {
 	fnt, err := opentype.Parse(goregular.TTF)
 	if err != nil {
 		log.Fatalf("Parse: %v", err)
@@ -34,10 +35,18 @@ func Text2img(label string, size float64) *image.RGBA {
 	metrics := face.Metrics()
 	meas := font.MeasureString(face, label)
 
+	var uniform *image.Uniform
+
+	if color != nil {
+		uniform = image.NewUniform(color)
+	} else {
+		uniform = image.White
+	}
+
 	img := image.NewRGBA(image.Rect(0, 0, meas.Round(), int(metrics.Height/70)))
 	drawer := font.Drawer{
 		Dst:  img,
-		Src:  image.White,
+		Src:  uniform,
 		Face: face,
 		Dot:  fixed.P(0, int(size*0.80)),
 	}
