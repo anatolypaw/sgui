@@ -2,6 +2,7 @@ package widget
 
 import (
 	"fmt"
+	"image/color"
 	"image/png"
 	"math/rand"
 	"os"
@@ -18,7 +19,11 @@ func TestDrawCircle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			indicator := NewIndicator(tt.radius, nil)
+			indicator := NewIndicator(tt.radius, ColorTheme{
+				BackgroundColor: color.White,
+				StrokeColor:     color.Black,
+				StrokeWidth:     2,
+			})
 			img := indicator.Render()
 
 			fname := fmt.Sprintf("%s.png", tt.name)

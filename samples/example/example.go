@@ -40,7 +40,7 @@ func main() {
 	for i := 0; i < 5; i++ {
 		for n := 0; n < 10; n++ {
 			// Создаем виджеты
-			ind := widget.NewIndicator(20, theme.BackgroundColor)
+			ind := widget.NewIndicator(20, theme)
 			ind.AddState(color.RGBA{255, 0, 0, 255})
 			ind.AddState(color.RGBA{0, 255, 0, 255})
 
