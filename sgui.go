@@ -73,14 +73,20 @@ func (ths *Canvas) StartInputEventHandler() {
 	go func() {
 		for {
 			event := ths.inputDevice.GetEvent()
-			switch event.(type) {
-			case EventTap:
-				go ths.TapHandler(event)
-			case EventRelease:
-				go ths.ReleaseHandler()
-			}
+			ths.Event(event)
 		}
 	}()
+}
+
+// Обрабатывает соыбытие ввода
+func (ths *Canvas) Event(event IEvent) {
+	switch event.(type) {
+	case EventTap:
+		go ths.TapHandler(event)
+	case EventRelease:
+		go ths.ReleaseHandler()
+	}
+
 }
 
 // Заливка заднего фона сплошным цветом

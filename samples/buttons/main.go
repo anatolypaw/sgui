@@ -72,7 +72,7 @@ func main() {
 	log.Printf("Rendering  %v\n", time.Since(start))
 
 	// Сохраняем рендер в файл
-	f, err := os.Create("example.png")
+	f, err := os.Create("render.png")
 	if err != nil {
 		return
 	}
