@@ -3,25 +3,16 @@ package sgui
 import (
 	_ "fmt"
 	"image"
-	"image/color"
 	"image/draw"
 	_ "log"
-
-	"github.com/anatolypaw/sgui/painter"
 )
 
-type Canvas struct {
-	display          *image.RGBA //
-	background       *image.RGBA
-	backgroundRefill bool
-
-	objects     []Object // виджеты и их положение на дисплее
-	inputDevice IInput   // Устройство ввода
-}
-
-type Object struct {
-	Widget   IWidget
-	Position image.Point
+// Основа. Отображает экраны.
+// Одновременно активен может быть только один экран
+type Sgui struct {
+	Display      *image.RGBA //
+	InputDevice  IInput      // Устройство ввода
+	ActiveScreen *Screen     // Активный экран, который будет обрабатываться
 }
 
 // Интерфейс устройства ввода
@@ -29,61 +20,41 @@ type IInput interface {
 	GetEvent() IEvent
 }
 
-// -
-type IWidget interface {
-	Render() *image.RGBA // Отрисовывает виджет, сбрасывает флаг updated
-	Size() image.Point
-	Updated() bool //Возвращает флаг, изменилось ли изображение виджета
-	Tap()          // Обработка нажатия и отпускания
-	Release()
-	Hide()          // Включает флаг скрытия виджета
-	Show()          // Отключает флаг скрытия виджета
-	Hidden() bool   // Возвращает флаг, скрыт ли виджет
-	Disabled() bool // Возвращает флаг, воспринимает ли виджет события
-}
-
-func New(display *image.RGBA, input IInput) (Canvas, error) {
-	return Canvas{
-		display:          display,
-		inputDevice:      input,
-		backgroundRefill: true,
+func New(display *image.RGBA, input IInput) (Sgui, error) {
+	return Sgui{
+		Display:     display,
+		InputDevice: input,
 	}, nil
 }
 
-// Возвращает размер дисплея
-func (ths *Canvas) Size() image.Point {
-	return image.Point{
-		X: ths.display.Bounds().Max.X,
-		Y: ths.display.Bounds().Max.Y,
-	}
+// Устанавливает активный экран
+func (ths *Sgui) SetScreen(screen *Screen) {
+	screen.BackgroundRefill = true
+	ths.ActiveScreen = screen
 }
 
-// Добавляет объект (widget) на холст
-func (ui *Canvas) AddWidget(x int, y int, w IWidget) {
-	obj := Object{
-		Widget:   w,
-		Position: image.Point{X: x, Y: y},
-	}
-	ui.objects = append(ui.objects, obj)
+// Возвращает размер дисплея
+func (ths *Sgui) SizeDisplay() image.Rectangle {
+	return ths.Display.Bounds()
 }
 
 // Обрабатывает события ввода
 // События обрабатываем в горутинах, что бы не пропустить
 // новые приходящие события
-func (ths *Canvas) StartInputEventHandler() {
-	if ths.inputDevice == nil {
+func (ths *Sgui) StartInputEventHandler() {
+	if ths.InputDevice == nil {
 		return
 	}
 	go func() {
 		for {
-			event := ths.inputDevice.GetEvent()
+			event := ths.InputDevice.GetEvent()
 			ths.Event(event)
 		}
 	}()
 }
 
 // Обрабатывает соыбытие ввода
-func (ths *Canvas) Event(event IEvent) {
+func (ths *Sgui) Event(event IEvent) {
 	switch event.(type) {
 	case EventTap:
 		go ths.TapHandler(event)
@@ -93,25 +64,11 @@ func (ths *Canvas) Event(event IEvent) {
 
 }
 
-// Заливка заднего фона сплошным цветом
-func (ths *Canvas) SetBackground(c color.Color) {
-	ths.background = painter.DrawRectangle(
-		painter.Rectangle{
-			Size: image.Point{
-				ths.display.Bounds().Dx(),
-				ths.display.Bounds().Dy(),
-			},
-			FillColor: c,
-		},
-	)
-
-}
-
 // Обработка нажатия
 // Ищем какой объект попал в точку нажатия и вызываем на нем
 // обработку нажатия
-func (ths *Canvas) TapHandler(event IEvent) {
-	for _, o := range ths.objects {
+func (ths *Sgui) TapHandler(event IEvent) {
+	for _, o := range ths.ActiveScreen.Objects {
 
 		// если виджет отключен или скрыт, не передаем ему событие
 		if o.Widget.Disabled() || o.Widget.Hidden() {
@@ -135,35 +92,43 @@ func (ths *Canvas) TapHandler(event IEvent) {
 }
 
 // Обработка отпускания нажатия для всех виджетов
-func (ths *Canvas) ReleaseHandler() {
-	for _, o := range ths.objects {
+func (ths *Sgui) ReleaseHandler() {
+	for _, o := range ths.ActiveScreen.Objects {
 		o.Widget.Release()
 	}
 }
 
 // Отрисовывает объекты на дисплей
-func (ths *Canvas) Render() {
-
-	// Сначала рисуем background
-	if ths.background != nil && ths.backgroundRefill {
-		copy(ths.display.Pix, ths.background.Pix)
-		ths.backgroundRefill = false
+func (ths *Sgui) Render() {
+	// Проверяем, установлен ли экран
+	if ths.ActiveScreen == nil {
+		return
 	}
 
-	// Отрисовка на дисплей объектов в порядке их добавления
-	for _, o := range ths.objects {
+	// Сначала рисуем background
+	if ths.ActiveScreen.Background != nil && ths.ActiveScreen.BackgroundRefill {
+		copy(ths.Display.Pix, ths.ActiveScreen.Background.Pix)
+	}
+
+	// Отрисовка на дисплей объектов с экрана, в порядке их добавления
+	for _, o := range ths.ActiveScreen.Objects {
 		// Если изображение виджета не менялось,
 		// то и перерисовывать его не нужно. Пропускаем этот виджет
 		// Если была отрисовка бэкграунда, то виджет нужно снова отрисовать
-		if !o.Widget.Updated() && !ths.backgroundRefill {
+		if !o.Widget.Updated() && !ths.ActiveScreen.BackgroundRefill {
 			continue
 		}
 
 		draw.Draw(
-			ths.display,
-			ths.display.Bounds(),
+			ths.Display,
+			ths.Display.Bounds(),
 			o.Widget.Render(),
 			image.Point{-o.Position.X, -o.Position.Y},
 			draw.Src)
 	}
+
+	if ths.ActiveScreen.BackgroundRefill {
+		ths.ActiveScreen.BackgroundRefill = false
+	}
+
 }

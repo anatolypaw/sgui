@@ -41,9 +41,14 @@ func main() {
 		CornerRadius:    10,
 	}
 
-	gui.SetBackground(theme.BackgroundColor)
+	// Создаем экраны
+	mainScreen := sgui.NewScreen(gui.SizeDisplay())
+	mainScreen.SetBackground(theme.BackgroundColor)
 
-	// Создаем виджеты
+	secondScreen := sgui.NewScreen(gui.SizeDisplay())
+	secondScreen.SetBackground(theme.BackgroundColor)
+
+	// Создаем виджеты на основной экран
 	ind := widget.NewIndicator(20, theme)
 	ind.AddState(color.RGBA{255, 0, 0, 255})
 	ind.AddState(color.RGBA{0, 255, 0, 255})
@@ -92,10 +97,52 @@ func main() {
 		},
 	)
 
+	buttonSetSecondScreen := widget.NewButton(
+		widget.ButtonParam{
+			Size: image.Point{X: 110, Y: 40},
+			Onclick: func() {
+				gui.SetScreen(&secondScreen)
+			},
+			Label:           "2 экран",
+			LabelSize:       20,
+			ReleaseColor:    theme.MainColor,
+			PressColor:      theme.SecondColor,
+			BackgroundColor: theme.BackgroundColor,
+			CornerRadius:    theme.CornerRadius,
+			StrokeWidth:     theme.StrokeWidth,
+			StrokeColor:     theme.StrokeColor,
+			TextColor:       theme.TextColor,
+		},
+	)
+
+	buttonSetMainScreen := widget.NewButton(
+		widget.ButtonParam{
+			Size: image.Point{X: 110, Y: 40},
+			Onclick: func() {
+				gui.SetScreen(&mainScreen)
+			},
+			Label:           "1 экран",
+			LabelSize:       20,
+			ReleaseColor:    theme.MainColor,
+			PressColor:      theme.SecondColor,
+			BackgroundColor: theme.BackgroundColor,
+			CornerRadius:    theme.CornerRadius,
+			StrokeWidth:     theme.StrokeWidth,
+			StrokeColor:     theme.StrokeColor,
+			TextColor:       theme.TextColor,
+		},
+	)
+
 	// Добавляем виджеты на холст
-	gui.AddWidget(10, 10, button1)
-	gui.AddWidget(10, 60, button2)
-	gui.AddWidget(130, 70, ind)
+	mainScreen.AddWidget(10, 10, button1)
+	mainScreen.AddWidget(10, 60, button2)
+	mainScreen.AddWidget(130, 70, ind)
+	mainScreen.AddWidget(10, 200, buttonSetSecondScreen)
+
+	secondScreen.AddWidget(10, 10, buttonSetMainScreen)
+
+	// Устанавливаем активный экран
+	gui.SetScreen(&mainScreen)
 
 	http.Handle("/", http.HandlerFunc(MainPage))
 	http.Handle("/render.png", http.HandlerFunc(GetRender(&gui, display)))
@@ -203,7 +250,7 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // Возвращает рендер
-func GetRender(gui *sgui.Canvas, display *image.RGBA) http.HandlerFunc {
+func GetRender(gui *sgui.Sgui, display *image.RGBA) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "image/png")
@@ -217,7 +264,7 @@ func GetRender(gui *sgui.Canvas, display *image.RGBA) http.HandlerFunc {
 }
 
 // Передает событие в гуй
-func Event(gui *sgui.Canvas) http.HandlerFunc {
+func Event(gui *sgui.Sgui) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		type EventData struct {
