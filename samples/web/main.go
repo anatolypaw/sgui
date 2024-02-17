@@ -34,8 +34,8 @@ func main() {
 	// Создаем тему
 	theme := widget.ColorTheme{
 		BackgroundColor: color.RGBA{240, 240, 240, 255},
-		MainColor:       color.RGBA{180, 180, 180, 255},
-		SecondColor:     color.RGBA{200, 200, 200, 255},
+		MainColor:       color.RGBA{200, 200, 200, 255},
+		SecondColor:     color.RGBA{180, 180, 180, 255},
 		StrokeColor:     color.RGBA{60, 60, 60, 255},
 		StrokeWidth:     2,
 		CornerRadius:    10,

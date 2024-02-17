@@ -72,7 +72,7 @@ func (ths *Sgui) TapHandler(event IEvent) {
 
 		// если виджет отключен или скрыт, не передаем ему событие
 		if o.Widget.Disabled() || o.Widget.Hidden() {
-			break
+			continue
 		}
 
 		// определяем положение виджета на холсте
