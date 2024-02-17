@@ -22,6 +22,8 @@ type BitIndicator struct {
 	currentState int // Текущее состояние
 	states       []bitIndicatorState
 	theme        ColorTheme
+	hidden       bool
+	disabled     bool
 
 	// Флаг, что изображение изменилось.
 	// Сбрасывется после рендеринга
@@ -101,4 +103,21 @@ func (w *BitIndicator) Size() image.Point {
 
 func (w *BitIndicator) Updated() bool {
 	return w.updated
+}
+
+func (w *BitIndicator) Hide() {
+	w.hidden = true
+}
+
+func (w *BitIndicator) Show() {
+	w.hidden = false
+
+}
+
+func (w *BitIndicator) Disabled() bool {
+	return w.disabled
+}
+
+func (w *BitIndicator) Hidden() bool {
+	return w.hidden
 }

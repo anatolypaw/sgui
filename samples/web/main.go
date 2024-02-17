@@ -29,10 +29,7 @@ func main() {
 	display := image.NewRGBA(rect)
 
 	// Создаем гуй
-	gui, err := sgui.New(display, nil)
-	if err != nil {
-		panic(err)
-	}
+	gui, _ := sgui.New(display, nil)
 
 	// Создаем тему
 	theme := widget.ColorTheme{
@@ -46,40 +43,65 @@ func main() {
 
 	gui.SetBackground(theme.BackgroundColor)
 
-	// Заполним виджетами весь экран
-	for i := 0; i < 5; i++ {
-		for n := 0; n < 10; n++ {
-			// Создаем виджеты
-			ind := widget.NewIndicator(20, theme)
-			ind.AddState(color.RGBA{255, 0, 0, 255})
-			ind.AddState(color.RGBA{0, 255, 0, 255})
+	// Создаем виджеты
+	ind := widget.NewIndicator(20, theme)
+	ind.AddState(color.RGBA{255, 0, 0, 255})
+	ind.AddState(color.RGBA{0, 255, 0, 255})
 
-			button := widget.NewButton(widget.ButtonParam{
-				Size: image.Point{X: 110, Y: 40},
-				Onclick: func() {
-					if ind.GetState() == 0 {
-						ind.SetState(1)
-					} else {
-						ind.SetState(0)
-					}
-				},
-				Label:     fmt.Sprintf("Button %v", n+(i*10)),
-				LabelSize: 20,
-				Theme:     theme,
+	button2 := widget.NewButton(
+		widget.ButtonParam{
+			Size: image.Point{X: 110, Y: 40},
+			Onclick: func() {
+				if ind.GetState() == 0 {
+					ind.SetState(1)
+				} else {
+					ind.SetState(0)
+				}
 			},
-			)
+			Label:           "Button 2",
+			LabelSize:       20,
+			ReleaseColor:    theme.MainColor,
+			PressColor:      theme.SecondColor,
+			BackgroundColor: theme.BackgroundColor,
+			CornerRadius:    theme.CornerRadius,
+			StrokeWidth:     theme.StrokeWidth,
+			StrokeColor:     theme.StrokeColor,
+			TextColor:       theme.TextColor,
+		},
+	)
 
-			// Добавляем виджеты на холст
-			gui.AddWidget(10+i*160, 10+(n*47), button)
-			gui.AddWidget(130+i*160, 20+(n*47), ind)
+	button1 := widget.NewButton(
+		widget.ButtonParam{
+			Size: image.Point{X: 110, Y: 40},
+			Onclick: func() {
+				if button2.Hidden() {
+					button2.Show()
+				} else {
+					button2.Hide()
+				}
+			},
+			Label:           "Hide",
+			LabelSize:       20,
+			ReleaseColor:    theme.MainColor,
+			PressColor:      theme.SecondColor,
+			BackgroundColor: theme.BackgroundColor,
+			CornerRadius:    theme.CornerRadius,
+			StrokeWidth:     theme.StrokeWidth,
+			StrokeColor:     theme.StrokeColor,
+			TextColor:       theme.TextColor,
+		},
+	)
 
-		}
-	}
+	// Добавляем виджеты на холст
+	gui.AddWidget(10, 10, button1)
+	gui.AddWidget(10, 60, button2)
+	gui.AddWidget(130, 70, ind)
 
 	http.Handle("/", http.HandlerFunc(MainPage))
 	http.Handle("/render.png", http.HandlerFunc(GetRender(&gui, display)))
 	http.Handle("/event", http.HandlerFunc(Event(&gui)))
 
+	//
 	fmt.Println("Server started at port 8080")
 	http.ListenAndServe(":8080", nil)
 }

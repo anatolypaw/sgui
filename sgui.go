@@ -36,6 +36,10 @@ type IWidget interface {
 	Updated() bool //Возвращает флаг, изменилось ли изображение виджета
 	Tap()          // Обработка нажатия и отпускания
 	Release()
+	Hide()          // Включает флаг скрытия виджета
+	Show()          // Отключает флаг скрытия виджета
+	Hidden() bool   // Возвращает флаг, скрыт ли виджет
+	Disabled() bool // Возвращает флаг, воспринимает ли виджет события
 }
 
 func New(display *image.RGBA, input IInput) (Canvas, error) {
@@ -108,6 +112,11 @@ func (ths *Canvas) SetBackground(c color.Color) {
 // обработку нажатия
 func (ths *Canvas) TapHandler(event IEvent) {
 	for _, o := range ths.objects {
+
+		// если виджет отключен или скрыт, не передаем ему событие
+		if o.Widget.Disabled() || o.Widget.Hidden() {
+			break
+		}
 
 		// определяем положение виджета на холсте
 		wpos := image.Rect(

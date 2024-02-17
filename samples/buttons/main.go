@@ -53,9 +53,15 @@ func main() {
 						ind.SetState(0)
 					}
 				},
-				Label:     fmt.Sprintf("Button %v", n+(i*10)),
-				LabelSize: 20,
-				Theme:     theme,
+				Label:           fmt.Sprintf("Button %v", n+(i*10)),
+				LabelSize:       20,
+				ReleaseColor:    theme.MainColor,
+				PressColor:      theme.SecondColor,
+				BackgroundColor: theme.BackgroundColor,
+				CornerRadius:    theme.CornerRadius,
+				StrokeWidth:     theme.StrokeWidth,
+				StrokeColor:     theme.StrokeColor,
+				TextColor:       theme.TextColor,
 			},
 			)
 
