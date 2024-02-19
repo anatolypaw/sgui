@@ -69,7 +69,7 @@ func NewLabel(p LabelParam) *Label {
 	textRender := text2img.Text2img(p.Text, p.TextSize, p.TextColor)
 	textMidPos := image.Point{
 		X: -(p.Size.X - textRender.Rect.Dx()) / 2,
-		Y: -(p.Size.Y - textRender.Rect.Dy()) / 2,
+		Y: -(p.Size.Y-textRender.Rect.Dy())/2 - textRender.Rect.Dy()/12,
 	}
 
 	rect := image.Rectangle{image.Point{0, 0}, p.Size}
@@ -91,8 +91,8 @@ func NewLabel(p LabelParam) *Label {
 
 	return &Label{
 		param:            p,
-		textUpdated:      true,
-		baseUpdated:      true,
+		textUpdated:      false,
+		baseUpdated:      false,
 		textRender:       textRender,
 		baseRender:       baseRender,
 		finalRender:      finalRender,
@@ -150,7 +150,7 @@ func (w *Label) Render() *image.RGBA {
 
 		textMidPos := image.Point{
 			X: -(w.param.Size.X - w.textRender.Rect.Dx()) / 2,
-			Y: -(w.param.Size.Y - w.textRender.Rect.Dy()) / 2,
+			Y: -(w.param.Size.Y-w.textRender.Rect.Dy())/2 - w.textRender.Rect.Dy()/12,
 		}
 
 		// Добавляем текст в финальный рендер

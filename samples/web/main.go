@@ -57,9 +57,9 @@ func main() {
 
 	label := widget.NewLabel(
 		widget.LabelParam{
-			Size:            image.Point{100, 30},
+			Size:            image.Point{500, 200},
 			Text:            fmt.Sprint(counter),
-			TextSize:        20,
+			TextSize:        200,
 			TextColor:       color.Black,
 			FillColor:       nil,
 			BackgroundColor: theme.BackgroundColor,
@@ -68,7 +68,7 @@ func main() {
 			StrokeColor:     theme.StrokeColor,
 		})
 
-	mainScreen.AddWidget(400, 400, label)
+	mainScreen.AddWidget(200, 200, label)
 
 	button2 := widget.NewButton(
 		widget.ButtonParam{
