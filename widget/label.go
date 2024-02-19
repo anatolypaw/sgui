@@ -12,8 +12,7 @@ import (
 type Label struct {
 	param LabelParam
 
-	hidden  bool // флаг, что надпись скрыта
-	useBase bool // флаг, что используется основа
+	hidden bool // флаг, что надпись скрыта
 
 	// Флаг, что изображение изменилось.
 	// Сбрасывется после рендеринга
@@ -54,9 +53,6 @@ func NewLabel(p LabelParam) *Label {
 		},
 	)
 
-	// Основа не нужна, если не указаны цвета рамки и заливки
-	useBase := p.FillColor != nil && p.StrokeColor != nil
-
 	// Создаем рендер основы надписи
 	baseRender := painter.DrawRectangle(
 		painter.Rectangle{
@@ -80,14 +76,12 @@ func NewLabel(p LabelParam) *Label {
 	rect := image.Rectangle{image.Point{0, 0}, p.Size}
 	finalRender := image.NewRGBA(rect)
 
-	if useBase {
-		// Добавляем основу в финальный рендер
-		draw.Draw(finalRender,
-			finalRender.Bounds(),
-			baseRender,
-			image.Point{0, 0},
-			draw.Src)
-	}
+	// Добавляем основу в финальный рендер
+	draw.Draw(finalRender,
+		finalRender.Bounds(),
+		baseRender,
+		image.Point{0, 0},
+		draw.Src)
 
 	// Добавляем текст в финальный рендер
 	draw.Draw(finalRender,
@@ -100,7 +94,6 @@ func NewLabel(p LabelParam) *Label {
 		param:            p,
 		textUpdated:      false,
 		baseUpdated:      false,
-		useBase:          useBase,
 		textRender:       textRender,
 		baseRender:       baseRender,
 		finalRender:      finalRender,
@@ -151,14 +144,12 @@ func (w *Label) Render() *image.RGBA {
 	if w.textUpdated || w.baseUpdated {
 
 		// Добавляем основу в финальный рендер
-		if w.useBase {
-			draw.Draw(w.finalRender,
-				w.finalRender.Bounds(),
-				w.baseRender,
-				image.Point{0, 0},
-				draw.Src)
 
-		}
+		draw.Draw(w.finalRender,
+			w.finalRender.Bounds(),
+			w.baseRender,
+			image.Point{0, 0},
+			draw.Src)
 
 		textMidPos := image.Point{
 			X: -(w.param.Size.X - w.textRender.Rect.Dx()) / 2,
