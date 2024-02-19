@@ -3,6 +3,7 @@ package sgui
 import (
 	"image"
 	"image/color"
+	"sync"
 
 	"github.com/anatolypaw/sgui/painter"
 )
@@ -13,6 +14,7 @@ type Screen struct {
 	Objects          []Object    // виджеты и их положение на дисплее
 	Size             image.Rectangle
 	BackgroundRefill bool
+	mu               sync.Mutex // Блокировка, когда идет работа с экраном.
 }
 
 type Object struct {

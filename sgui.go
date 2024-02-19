@@ -30,7 +30,14 @@ func New(display *image.RGBA, input IInput) (Sgui, error) {
 // Устанавливает активный экран
 func (ths *Sgui) SetScreen(screen *Screen) {
 	screen.BackgroundRefill = true
+
+	// Ждем, когда завершится обработка действующего экрана
+	if ths.ActiveScreen != nil {
+		ths.ActiveScreen.mu.Lock()
+		defer ths.ActiveScreen.mu.Unlock()
+	}
 	ths.ActiveScreen = screen
+
 }
 
 // Возвращает размер дисплея
@@ -104,6 +111,8 @@ func (ths *Sgui) Render() {
 	if ths.ActiveScreen == nil {
 		return
 	}
+	ths.ActiveScreen.mu.Lock()
+	defer ths.ActiveScreen.mu.Unlock()
 
 	// Сначала рисуем background
 	if ths.ActiveScreen.Background != nil && ths.ActiveScreen.BackgroundRefill {
