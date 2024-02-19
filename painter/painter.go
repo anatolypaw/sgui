@@ -106,7 +106,7 @@ func DrawRectangle(r Rectangle) *image.RGBA {
 		p2x, p2y := float64(r.Size.X)-stk, stk
 		p3x, p3y := float64(r.Size.X)-stk, float64(r.Size.Y)-stk
 		p4x, p4y := stk, float64(r.Size.Y)-stk
-		rad := float64(r.CornerRadius) - r.StrokeWidth
+		rad := float64(r.CornerRadius+2.1) - r.StrokeWidth
 
 		c := quarterCircleControl * rad
 		dasher := rasterx.NewDasher(r.Size.X, r.Size.Y, scanner)

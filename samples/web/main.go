@@ -53,10 +53,29 @@ func main() {
 	ind.AddState(color.RGBA{255, 0, 0, 255})
 	ind.AddState(color.RGBA{0, 255, 0, 255})
 
+	counter := 0
+
+	label := widget.NewLabel(
+		widget.LabelParam{
+			Size:            image.Point{100, 30},
+			Text:            fmt.Sprint(counter),
+			TextSize:        20,
+			TextColor:       color.Black,
+			FillColor:       nil,
+			BackgroundColor: theme.BackgroundColor,
+			CornerRadius:    0,
+			StrokeWidth:     theme.StrokeWidth,
+			StrokeColor:     theme.StrokeColor,
+		})
+
+	mainScreen.AddWidget(400, 400, label)
+
 	button2 := widget.NewButton(
 		widget.ButtonParam{
 			Size: image.Point{X: 110, Y: 40},
 			Onclick: func() {
+				counter++
+				label.SetText(fmt.Sprint(counter))
 				if ind.GetState() == 0 {
 					ind.SetState(1)
 				} else {

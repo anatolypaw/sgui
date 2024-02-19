@@ -53,6 +53,14 @@ func NewButton(p ButtonParam) *Button {
 		p.Size.Y = 1
 	}
 
+	// Создаем background для скрытого состояния
+	backgroundRender := painter.DrawRectangle(
+		painter.Rectangle{
+			Size:      p.Size,
+			BackColor: p.BackgroundColor,
+		},
+	)
+
 	// Состояния кнопки.
 	// Нормальное состояние
 	releasedRender := painter.DrawRectangle(
@@ -78,32 +86,24 @@ func NewButton(p ButtonParam) *Button {
 		},
 	)
 
-	// Скрытое состояние
-	backgroundRender := painter.DrawRectangle(
-		painter.Rectangle{
-			Size:      p.Size,
-			BackColor: p.BackgroundColor,
-		},
-	)
-
 	// Получаем изображение текста и вычисляем его расположение
 	// для размещения в середине кнопки
-	textimg := text2img.Text2img(p.Label, p.LabelSize, p.TextColor)
+	textRender := text2img.Text2img(p.Label, p.LabelSize, p.TextColor)
 	textMidPos := image.Point{
-		X: -(p.Size.X - textimg.Rect.Dx()) / 2,
-		Y: -(p.Size.Y - textimg.Rect.Dy()) / 2,
+		X: -(p.Size.X - textRender.Rect.Dx()) / 2,
+		Y: -(p.Size.Y - textRender.Rect.Dy()) / 2,
 	}
 
 	// Наносим текст на оба состояния кнопки
 	draw.Draw(releasedRender,
 		releasedRender.Bounds(),
-		textimg,
+		textRender,
 		textMidPos,
 		draw.Over)
 
 	draw.Draw(pressedRender,
 		pressedRender.Bounds(),
-		textimg,
+		textRender,
 		textMidPos,
 		draw.Over)
 
