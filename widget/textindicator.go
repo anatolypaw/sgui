@@ -19,7 +19,7 @@ type TextIndicatorParam struct {
 	StrokeWidth     float64
 }
 
-type TextIndicator struct {
+type textIndicator struct {
 	param TextIndicatorParam
 
 	currentState int
@@ -32,7 +32,7 @@ type TextIndicator struct {
 	updated bool
 }
 
-func NewTextIndicator(p TextIndicatorParam) *TextIndicator {
+func NewTextIndicator(p TextIndicatorParam) *textIndicator {
 	if p.Size.X <= 0 {
 		p.Size.X = 1
 	}
@@ -41,12 +41,12 @@ func NewTextIndicator(p TextIndicatorParam) *TextIndicator {
 		p.Size.Y = 1
 	}
 
-	return &TextIndicator{
+	return &textIndicator{
 		param: p,
 	}
 }
 
-func (w *TextIndicator) AddState(
+func (w *textIndicator) AddState(
 	text string,
 	textSize float64,
 	textColor color.Color,
@@ -84,7 +84,7 @@ func (w *TextIndicator) AddState(
 	w.states = append(w.states, baseRender)
 }
 
-func (w *TextIndicator) SetState(s int) {
+func (w *textIndicator) SetState(s int) {
 	if s < 0 {
 		w.currentState = 0
 		return
@@ -102,15 +102,15 @@ func (w *TextIndicator) SetState(s int) {
 
 }
 
-func (w *TextIndicator) GetState() int {
+func (w *textIndicator) GetState() int {
 	return w.currentState
 }
 
-func (w *TextIndicator) States() int {
+func (w *textIndicator) States() int {
 	return len(w.states)
 }
 
-func (w *TextIndicator) Render() *image.RGBA {
+func (w *textIndicator) Render() *image.RGBA {
 	if w.states == nil {
 		w.AddState(
 			"NO STATE",
@@ -125,36 +125,36 @@ func (w *TextIndicator) Render() *image.RGBA {
 	return w.states[w.currentState]
 }
 
-func (w *TextIndicator) Tap() {
+func (w *textIndicator) Tap() {
 }
 
-func (w *TextIndicator) Release() {
+func (w *textIndicator) Release() {
 }
 
-func (w *TextIndicator) Size() image.Point {
+func (w *textIndicator) Size() image.Point {
 	return image.Point{
 		w.param.Size.X,
 		w.param.Size.Y,
 	}
 }
 
-func (w *TextIndicator) Updated() bool {
+func (w *textIndicator) Updated() bool {
 	return w.updated
 }
 
-func (w *TextIndicator) Hide() {
+func (w *textIndicator) Hide() {
 	w.hidden = true
 }
 
-func (w *TextIndicator) Show() {
+func (w *textIndicator) Show() {
 	w.hidden = false
 
 }
 
-func (w *TextIndicator) Disabled() bool {
+func (w *textIndicator) Disabled() bool {
 	return w.disabled
 }
 
-func (w *TextIndicator) Hidden() bool {
+func (w *textIndicator) Hidden() bool {
 	return w.hidden
 }
