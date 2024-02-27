@@ -12,16 +12,23 @@ import (
 type Label struct {
 	param LabelParam
 
-	hidden bool // флаг, что надпись скрыта
-
 	// Флаг, что изображение изменилось.
 	// Сбрасывется после рендеринга
-	textUpdated      bool        // текст был изменен
-	baseUpdated      bool        // основа была изменена
+	sizeUpdated    bool // размер виджета был изменен
+	textUpdated    bool // текст был изменен
+	baseUpdated    bool // основа была изменена
+	visibleUpdated bool // Изменена видимость виджета
+
 	textRender       *image.RGBA // Рендер текста
 	baseRender       *image.RGBA // Рендер основы надписи (заливка, рамка, скругление)
 	finalRender      *image.RGBA // Рендер текста на основе
 	backgroundRender *image.RGBA // используется, когда виджет скрыт
+
+	// Если фнкция была передана, то она будет выполняться
+	// каждый раз перед рендерингом.
+	// если какой то из новых полученных параметров будет отличаться от текущих,
+	// то он будет применен
+	ParamSource func() LabelParam
 }
 
 type LabelParam struct {
@@ -34,82 +41,141 @@ type LabelParam struct {
 	CornerRadius    float64
 	StrokeWidth     float64
 	StrokeColor     color.Color
+	Hidden          bool
 }
 
-func NewLabel(p LabelParam) *Label {
-	if p.Size.X <= 0 {
-		p.Size.X = 1
+// Должен быть передан хотя бы один параметр
+func NewLabel(p *LabelParam, ps func() LabelParam) *Label {
+	label := Label{}
+
+	// Если параметры не переданы, то возвращаем пустую структуру
+	if p == nil {
+
+		// Не указан источник параметров
+		if ps == nil {
+			panic("Для виджета label не указано ни одного источника параметров")
+		}
+
+		label.ParamSource = ps
+		return &label
 	}
 
-	if p.Size.Y <= 0 {
-		p.Size.Y = 1
+	label.SetParam(*p)
+	label.Render()
+
+	return &label
+}
+
+// Установка параметров виджета
+func (w *Label) SetParam(p LabelParam) {
+	w.param.Hidden = p.Hidden
+
+	w.SetSize(p.Size)
+	w.SetBackground(p.BackgroundColor)
+	w.SetBase(p.FillColor, p.CornerRadius, p.StrokeWidth, p.StrokeColor)
+	w.SetText(p.Text, p.TextSize, p.TextColor)
+}
+
+// Установить размер
+func (w *Label) SetSize(size image.Point) {
+	if w.param.Size == size {
+		return
 	}
 
+	w.param.Size = size
+	w.sizeUpdated = true
+}
+
+// Установить задний фон
+func (w *Label) SetBackground(c color.Color) {
 	// Создаем background для скрытого состояния
-	backgroundRender := painter.DrawRectangle(
+
+	// Цвет и размер не изменился, пропускаем
+	if w.param.BackgroundColor == c &&
+		!w.sizeUpdated {
+		return
+	}
+
+	// Обновляем параметры
+	w.param.BackgroundColor = c
+
+	w.backgroundRender = painter.DrawRectangle(
 		painter.Rectangle{
-			Size:      p.Size,
-			BackColor: p.BackgroundColor,
+			Size:      w.param.Size,
+			BackColor: w.param.BackgroundColor,
 		},
 	)
+
+}
+
+// Установить основу надписи (подложку)
+func (w *Label) SetBase(
+	fillColor color.Color,
+	cornerRadius float64,
+	strokeWidth float64,
+	strokeColor color.Color,
+) {
+	// Проверяем, отличаются ли новые параметры от сущесвубщих
+	// Если не отличаются, то выходим
+	if w.param.FillColor == fillColor &&
+		w.param.CornerRadius == cornerRadius &&
+		w.param.StrokeWidth == strokeWidth &&
+		w.param.StrokeColor == strokeColor &&
+		!w.sizeUpdated {
+		return
+	}
+
+	//Обновляем параметры
+	w.param.FillColor = fillColor
+	w.param.CornerRadius = cornerRadius
+	w.param.StrokeWidth = strokeWidth
+	w.param.StrokeColor = strokeColor
+
+	w.baseUpdated = true
 
 	// Создаем рендер основы надписи
-	baseRender := painter.DrawRectangle(
+	w.baseRender = painter.DrawRectangle(
 		painter.Rectangle{
-			Size:         p.Size,
-			FillColor:    p.FillColor,
-			BackColor:    p.BackgroundColor,
-			CornerRadius: p.CornerRadius,
-			StrokeWidth:  p.StrokeWidth,
-			StrokeColor:  p.StrokeColor,
+			Size:         w.param.Size,
+			FillColor:    w.param.FillColor,
+			BackColor:    w.param.BackgroundColor,
+			CornerRadius: w.param.CornerRadius,
+			StrokeWidth:  w.param.StrokeWidth,
+			StrokeColor:  w.param.StrokeColor,
 		},
 	)
 
-	// Создаем рендер текста и вычисляем его расположение
-	// для размещения в середине виджета
-	textRender := text2img.Text2img(p.Text, p.TextSize, p.TextColor)
-	textMidPos := image.Point{
-		X: -(p.Size.X - textRender.Rect.Dx()) / 2,
-		Y: -(p.Size.Y-textRender.Rect.Dy())/2 - textRender.Rect.Dy()/12,
-	}
-
-	rect := image.Rectangle{image.Point{0, 0}, p.Size}
-	finalRender := image.NewRGBA(rect)
-
-	// Добавляем основу в финальный рендер
-	draw.Draw(finalRender,
-		finalRender.Bounds(),
-		baseRender,
-		image.Point{0, 0},
-		draw.Src)
-
-	// Добавляем текст в финальный рендер
-	draw.Draw(finalRender,
-		finalRender.Bounds(),
-		textRender,
-		textMidPos,
-		draw.Over)
-
-	return &Label{
-		param:            p,
-		textUpdated:      false,
-		baseUpdated:      false,
-		textRender:       textRender,
-		baseRender:       baseRender,
-		finalRender:      finalRender,
-		backgroundRender: backgroundRender,
-	}
 }
 
 // Установить новый текст
-func (w *Label) SetText(s string) {
-	w.param.Text = s
+func (w *Label) SetText(text string, size float64, color color.Color) {
+	// Проверяем, отличаются ли новые параметры от сущесвубщих
+	// Если не отличаются, то выходим
+	if w.param.Text == text &&
+		w.param.TextSize == size &&
+		w.param.TextColor == color &&
+		!w.sizeUpdated {
+		return
+	}
+
+	// Обновляем параметры
+	w.param.Text = text
+	w.param.TextSize = size
+	w.param.TextColor = color
+
+	// Создаем рендер текста и вычисляем его расположение
+	// для размещения в середине виджета
+	w.textRender = text2img.Text2img(
+		w.param.Text,
+		w.param.TextSize,
+		w.param.TextColor,
+	)
 	w.textUpdated = true
 }
 
 // Отобразить виджет
 func (w *Label) Show() {
-	w.hidden = false
+	w.param.Hidden = false
 }
 
 // Обработка нажатия на виджет
@@ -122,41 +188,52 @@ func (w *Label) Release() {
 	// Игнорируем отпускание
 }
 
+// Обновление внутреннего состояния виджета
+func (w *Label) Update() {
+	if w.param.Hidden {
+		return
+	}
+	// Обновляем параметры виджета
+	if w.ParamSource != nil {
+		param := w.ParamSource()
+		w.SetParam(param)
+	}
+}
+
 // Render implements sgui.IWidget.
 func (w *Label) Render() *image.RGBA {
 
+	// Подгонка размера финального рендера
+	if w.sizeUpdated {
+		rect := image.Rect(0, 0, w.param.Size.X, w.param.Size.Y)
+		w.finalRender = image.NewRGBA(rect)
+
+		w.sizeUpdated = false
+	}
+
+	// Композиция слоев
+
 	// Была изменена основа
 	if w.baseUpdated {
-		// TODO Рендерим новую основу
-
-	}
-
-	// Был изменен текст
-	if w.textUpdated {
-		// Создаем рендер текста и вычисляем его расположение
-		// для размещения в середине виджета
-		w.textRender = text2img.Text2img(
-			w.param.Text,
-			w.param.TextSize,
-			w.param.TextColor)
-	}
-
-	if w.textUpdated || w.baseUpdated {
-
-		// Добавляем основу в финальный рендер
-
 		draw.Draw(w.finalRender,
 			w.finalRender.Bounds(),
 			w.baseRender,
 			image.Point{0, 0},
 			draw.Src)
 
+		w.baseUpdated = false
+
+		// Текст нужно повторно отрисовать на основе
+		w.textUpdated = true
+	}
+
+	// Был изменен текст
+	if w.textUpdated {
 		textMidPos := image.Point{
 			X: -(w.param.Size.X - w.textRender.Rect.Dx()) / 2,
 			Y: -(w.param.Size.Y-w.textRender.Rect.Dy())/2 - w.textRender.Rect.Dy()/12,
 		}
 
-		// Добавляем текст в финальный рендер
 		draw.Draw(w.finalRender,
 			w.finalRender.Bounds(),
 			w.textRender,
@@ -164,7 +241,11 @@ func (w *Label) Render() *image.RGBA {
 			draw.Over)
 
 		w.textUpdated = false
-		w.baseUpdated = false
+	}
+
+	// Виджет скрыт
+	if w.param.Hidden {
+		return w.backgroundRender
 	}
 
 	return w.finalRender
@@ -178,20 +259,20 @@ func (w *Label) Size() image.Point {
 // Если изображение виджета обновилось, но не был вызван Render()
 // то возвращается true, иначе false
 func (w *Label) Updated() bool {
-	return w.textUpdated || w.baseUpdated
+	return w.textUpdated || w.baseUpdated || w.sizeUpdated
 }
 
 // Скрыть виджет
 func (w *Label) Hide() {
-	w.hidden = true
+	w.param.Hidden = true
 }
 
 // Вовзращаем, скрыт ли виджет
 func (w *Label) Hidden() bool {
-	return w.hidden
+	return w.param.Hidden
 }
 
 // Считаем что виджет отключен, когда скрыт
 func (w *Label) Disabled() bool {
-	return w.hidden
+	return w.param.Hidden
 }

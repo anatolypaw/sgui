@@ -17,9 +17,13 @@ type TextIndicatorParam struct {
 	BackgroundColor color.Color
 	CornerRadius    float64
 	StrokeWidth     float64
+
+	// Если эта функция указана, то данные берутся из нее
+	// Предназначена для получения состояния индикатора
+	StateSource func() int
 }
 
-type textIndicator struct {
+type TextIndicator struct {
 	param TextIndicatorParam
 
 	currentState int
@@ -32,7 +36,7 @@ type textIndicator struct {
 	updated bool
 }
 
-func NewTextIndicator(p TextIndicatorParam) *textIndicator {
+func NewTextIndicator(p TextIndicatorParam) *TextIndicator {
 	if p.Size.X <= 0 {
 		p.Size.X = 1
 	}
@@ -41,12 +45,12 @@ func NewTextIndicator(p TextIndicatorParam) *textIndicator {
 		p.Size.Y = 1
 	}
 
-	return &textIndicator{
+	return &TextIndicator{
 		param: p,
 	}
 }
 
-func (w *textIndicator) AddState(
+func (w *TextIndicator) AddState(
 	text string,
 	textSize float64,
 	textColor color.Color,
@@ -84,7 +88,7 @@ func (w *textIndicator) AddState(
 	w.states = append(w.states, baseRender)
 }
 
-func (w *textIndicator) SetState(s int) {
+func (w *TextIndicator) SetState(s int) {
 	if s < 0 {
 		w.currentState = 0
 		return
@@ -102,15 +106,15 @@ func (w *textIndicator) SetState(s int) {
 
 }
 
-func (w *textIndicator) GetState() int {
+func (w *TextIndicator) GetState() int {
 	return w.currentState
 }
 
-func (w *textIndicator) States() int {
+func (w *TextIndicator) States() int {
 	return len(w.states)
 }
 
-func (w *textIndicator) Render() *image.RGBA {
+func (w *TextIndicator) Render() *image.RGBA {
 	if w.states == nil {
 		w.AddState(
 			"NO STATE",
@@ -121,40 +125,48 @@ func (w *textIndicator) Render() *image.RGBA {
 		)
 		slog.Error("No states for BitIndicator. Created empty state")
 	}
+
+	// Получаем статус индикатора с внешней функции
+	if w.param.StateSource != nil {
+		w.SetState(w.param.StateSource())
+	}
+
 	w.updated = false
 	return w.states[w.currentState]
 }
 
-func (w *textIndicator) Tap() {
+func (w *TextIndicator) Tap() {
 }
 
-func (w *textIndicator) Release() {
+func (w *TextIndicator) Release() {
 }
 
-func (w *textIndicator) Size() image.Point {
+func (w *TextIndicator) Size() image.Point {
 	return image.Point{
 		w.param.Size.X,
 		w.param.Size.Y,
 	}
 }
 
-func (w *textIndicator) Updated() bool {
+func (w *TextIndicator) Updated() bool {
 	return w.updated
 }
 
-func (w *textIndicator) Hide() {
+func (w *TextIndicator) Hide() {
 	w.hidden = true
 }
 
-func (w *textIndicator) Show() {
+func (w *TextIndicator) Show() {
 	w.hidden = false
 
 }
 
-func (w *textIndicator) Disabled() bool {
+func (w *TextIndicator) Disabled() bool {
 	return w.disabled
 }
 
-func (w *textIndicator) Hidden() bool {
+func (w *TextIndicator) Hidden() bool {
 	return w.hidden
 }
+
+func (w *TextIndicator) Update() {}

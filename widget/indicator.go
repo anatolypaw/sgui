@@ -23,22 +23,28 @@ type BitIndicator struct {
 	currentState int // Текущее состояние
 	states       []bitIndicatorState
 	theme        ColorTheme
-	hidden       bool
-	disabled     bool
+
+	// Если эта функция указана, то она выполняется перед рендерингом
+	// Предназначена для получения состояния индикатора
+	stateLoader func() int
+
+	hidden   bool
+	disabled bool
 
 	// Флаг, что изображение изменилось.
 	// Сбрасывется после рендеринга
 	updated bool
 }
 
-func NewIndicator(size int, theme ColorTheme) *BitIndicator {
+func NewIndicator(size int, stateLoader func() int, theme ColorTheme) *BitIndicator {
 	if size <= 0 {
 		size = 1
 	}
 	return &BitIndicator{
-		size:    size,
-		updated: true,
-		theme:   theme,
+		size:        size,
+		stateLoader: stateLoader,
+		updated:     true,
+		theme:       theme,
 	}
 }
 
@@ -85,6 +91,12 @@ func (w *BitIndicator) Render() *image.RGBA {
 		w.AddState(color.RGBA{0, 0, 0, 0})
 		slog.Error("No states for BitIndicator. Created empty state")
 	}
+
+	// Получаем статус индикатора с внешней функции
+	if w.stateLoader != nil {
+		w.SetState(w.stateLoader())
+	}
+
 	w.updated = false
 	return w.states[w.currentState].img
 }
@@ -122,3 +134,5 @@ func (w *BitIndicator) Disabled() bool {
 func (w *BitIndicator) Hidden() bool {
 	return w.hidden
 }
+
+func (w *BitIndicator) Update() {}

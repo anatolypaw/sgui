@@ -19,7 +19,7 @@ func TestDrawCircle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			indicator := NewIndicator(tt.radius, ColorTheme{
+			indicator := NewIndicator(tt.radius, nil, ColorTheme{
 				BackgroundColor: color.White,
 				StrokeColor:     color.Black,
 				StrokeWidth:     2,

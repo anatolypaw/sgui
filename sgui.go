@@ -4,6 +4,7 @@ import (
 	_ "fmt"
 	"image"
 	"image/draw"
+	"log"
 	_ "log"
 )
 
@@ -121,6 +122,10 @@ func (ths *Sgui) Render() {
 
 	// Отрисовка на дисплей объектов с экрана, в порядке их добавления
 	for _, o := range ths.ActiveScreen.Objects {
+
+		// Обновление внутреннего состояния виджета
+		o.Widget.Update()
+
 		// Если изображение виджета не менялось,
 		// то и перерисовывать его не нужно. Пропускаем этот виджет
 		// Если была отрисовка бэкграунда, то виджет нужно снова отрисовать
@@ -128,10 +133,17 @@ func (ths *Sgui) Render() {
 			continue
 		}
 
+		wr := o.Widget.Render()
+
+		if wr == nil {
+			log.Println("SGUI: Widget render error - no render")
+			continue
+		}
+
 		draw.Draw(
 			ths.Display,
 			ths.Display.Bounds(),
-			o.Widget.Render(),
+			wr,
 			image.Point{-o.Position.X, -o.Position.Y},
 			draw.Src)
 	}

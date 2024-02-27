@@ -49,14 +49,14 @@ func main() {
 	secondScreen.SetBackground(theme.BackgroundColor)
 
 	// Создаем виджеты на основной экран
-	ind := widget.NewIndicator(20, theme)
+	ind := widget.NewIndicator(20, nil, theme)
 	ind.AddState(color.RGBA{255, 0, 0, 255})
 	ind.AddState(color.RGBA{0, 255, 0, 255})
 
 	counter := 0
 
 	label := widget.NewLabel(
-		widget.LabelParam{
+		&widget.LabelParam{
 			Size:            image.Point{500, 200},
 			Text:            fmt.Sprint(counter),
 			TextSize:        200,
@@ -66,90 +66,95 @@ func main() {
 			CornerRadius:    0,
 			StrokeWidth:     theme.StrokeWidth,
 			StrokeColor:     theme.StrokeColor,
-		})
+		},
+		nil)
 
 	mainScreen.AddWidget(200, 200, label)
 
 	button2 := widget.NewButton(
-		widget.ButtonParam{
+		&widget.ButtonParam{
 			Size: image.Point{X: 110, Y: 40},
-			Onclick: func() {
+			OnClick: func() {
 				counter++
-				label.SetText(fmt.Sprint(counter))
+				label.SetText(fmt.Sprint(counter), 200, color.Black)
 				if ind.GetState() == 0 {
 					ind.SetState(1)
 				} else {
 					ind.SetState(0)
 				}
 			},
-			Label:           "Button 2",
-			LabelSize:       20,
-			ReleaseColor:    theme.MainColor,
-			PressColor:      theme.SecondColor,
-			BackgroundColor: theme.BackgroundColor,
-			CornerRadius:    theme.CornerRadius,
-			StrokeWidth:     theme.StrokeWidth,
-			StrokeColor:     theme.StrokeColor,
-			TextColor:       theme.TextColor,
+			Text:             "Button 2",
+			TextSize:         20,
+			ReleaseFillColor: theme.MainColor,
+			PressFillColor:   theme.SecondColor,
+			BackgroundColor:  theme.BackgroundColor,
+			CornerRadius:     theme.CornerRadius,
+			StrokeWidth:      theme.StrokeWidth,
+			StrokeColor:      theme.StrokeColor,
+			TextColor:        theme.TextColor,
 		},
+		nil,
 	)
 
 	button1 := widget.NewButton(
-		widget.ButtonParam{
+		&widget.ButtonParam{
 			Size: image.Point{X: 110, Y: 40},
-			Onclick: func() {
+			OnClick: func() {
 				if button2.Hidden() {
 					button2.Show()
 				} else {
 					button2.Hide()
 				}
 			},
-			Label:           "Hide",
-			LabelSize:       20,
-			ReleaseColor:    theme.MainColor,
-			PressColor:      theme.SecondColor,
-			BackgroundColor: theme.BackgroundColor,
-			CornerRadius:    theme.CornerRadius,
-			StrokeWidth:     theme.StrokeWidth,
-			StrokeColor:     theme.StrokeColor,
-			TextColor:       theme.TextColor,
+			Text:             "Hide",
+			TextSize:         20,
+			ReleaseFillColor: theme.MainColor,
+			PressFillColor:   theme.SecondColor,
+			BackgroundColor:  theme.BackgroundColor,
+			CornerRadius:     theme.CornerRadius,
+			StrokeWidth:      theme.StrokeWidth,
+			StrokeColor:      theme.StrokeColor,
+			TextColor:        theme.TextColor,
 		},
+		nil,
 	)
 
 	buttonSetSecondScreen := widget.NewButton(
-		widget.ButtonParam{
+		&widget.ButtonParam{
 			Size: image.Point{X: 110, Y: 40},
-			Onclick: func() {
+			OnClick: func() {
 				gui.SetScreen(&secondScreen)
 			},
-			Label:           "2 экран",
-			LabelSize:       20,
-			ReleaseColor:    theme.MainColor,
-			PressColor:      theme.SecondColor,
-			BackgroundColor: theme.BackgroundColor,
-			CornerRadius:    theme.CornerRadius,
-			StrokeWidth:     theme.StrokeWidth,
-			StrokeColor:     theme.StrokeColor,
-			TextColor:       theme.TextColor,
+			Text:             "2 экран",
+			TextSize:         20,
+			ReleaseFillColor: theme.MainColor,
+			PressFillColor:   theme.SecondColor,
+			BackgroundColor:  theme.BackgroundColor,
+			CornerRadius:     theme.CornerRadius,
+			StrokeWidth:      theme.StrokeWidth,
+			StrokeColor:      theme.StrokeColor,
+			TextColor:        theme.TextColor,
 		},
+		nil,
 	)
 
 	buttonSetMainScreen := widget.NewButton(
-		widget.ButtonParam{
+		&widget.ButtonParam{
 			Size: image.Point{X: 110, Y: 40},
-			Onclick: func() {
+			OnClick: func() {
 				gui.SetScreen(&mainScreen)
 			},
-			Label:           "1 экран",
-			LabelSize:       20,
-			ReleaseColor:    theme.MainColor,
-			PressColor:      theme.SecondColor,
-			BackgroundColor: theme.BackgroundColor,
-			CornerRadius:    theme.CornerRadius,
-			StrokeWidth:     theme.StrokeWidth,
-			StrokeColor:     theme.StrokeColor,
-			TextColor:       theme.TextColor,
+			Text:             "1 экран",
+			TextSize:         20,
+			ReleaseFillColor: theme.MainColor,
+			PressFillColor:   theme.SecondColor,
+			BackgroundColor:  theme.BackgroundColor,
+			CornerRadius:     theme.CornerRadius,
+			StrokeWidth:      theme.StrokeWidth,
+			StrokeColor:      theme.StrokeColor,
+			TextColor:        theme.TextColor,
 		},
+		nil,
 	)
 
 	// Добавляем виджеты на холст
