@@ -212,23 +212,16 @@ func (w *Label) Render() *image.RGBA {
 	}
 
 	// Композиция слоев
-
-	// Была изменена основа
-	if w.baseUpdated {
+	// Был изменен текст или основа
+	if w.textUpdated || w.baseUpdated {
+		// Рисуем основу
 		draw.Draw(w.finalRender,
 			w.finalRender.Bounds(),
 			w.baseRender,
 			image.Point{0, 0},
 			draw.Src)
 
-		w.baseUpdated = false
-
-		// Текст нужно повторно отрисовать на основе
-		w.textUpdated = true
-	}
-
-	// Был изменен текст
-	if w.textUpdated {
+		// Рисуем текст
 		textMidPos := image.Point{
 			X: -(w.param.Size.X - w.textRender.Rect.Dx()) / 2,
 			Y: -(w.param.Size.Y-w.textRender.Rect.Dy())/2 - w.textRender.Rect.Dy()/12,
@@ -242,6 +235,9 @@ func (w *Label) Render() *image.RGBA {
 
 		w.textUpdated = false
 	}
+
+	w.baseUpdated = false
+	w.textUpdated = false
 
 	// Виджет скрыт
 	if w.param.Hidden {

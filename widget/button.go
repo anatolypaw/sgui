@@ -59,6 +59,7 @@ type ButtonParam struct {
 
 func NewButton(p *ButtonParam, ps func() ButtonParam) *Button {
 	button := Button{}
+	button.ParamSource = ps
 
 	// Если параметры не переданы, то возвращаем пустую структуру
 	if p == nil {
@@ -70,7 +71,6 @@ func NewButton(p *ButtonParam, ps func() ButtonParam) *Button {
 		return &button
 	}
 
-	button.ParamSource = ps
 	button.SetParam(*p)
 	button.Render()
 
@@ -245,9 +245,22 @@ func (w *Button) Click() {
 		go w.param.OnClick()
 	}
 }
+func (w *Button) Update() {
+	if w.param.Hidden {
+		return
+	}
+
+	// Обновляем параметры виджета
+	if w.ParamSource != nil {
+		param := w.ParamSource()
+		w.SetParam(param)
+
+	}
+}
 
 // Render implements sgui.IWidget.
 func (w *Button) Render() *image.RGBA {
+
 	// Подгонка размера финальных рендеров
 	if w.sizeUpdated {
 		rect := image.Rect(0, 0, w.param.Size.X, w.param.Size.Y)
@@ -361,16 +374,4 @@ func (w *Button) Disabled() bool {
 
 func (w *Button) Hidden() bool {
 	return w.param.Hidden
-}
-
-func (w *Button) Update() {
-	if w.param.Hidden {
-		return
-	}
-
-	// Обновляем параметры виджета
-	if w.ParamSource != nil {
-		param := w.ParamSource()
-		w.SetParam(param)
-	}
 }
