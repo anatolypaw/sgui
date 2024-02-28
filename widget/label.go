@@ -68,7 +68,10 @@ func NewLabel(p *LabelParam, ps func() LabelParam) *Label {
 
 // Установка параметров виджета
 func (w *Label) SetParam(p LabelParam) {
-	w.param.Hidden = p.Hidden
+	if w.param.Hidden != p.Hidden {
+		w.param.Hidden = p.Hidden
+		w.visibleUpdated = true
+	}
 
 	w.SetSize(p.Size)
 	w.SetBackground(p.BackgroundColor)
@@ -190,9 +193,6 @@ func (w *Label) Release() {
 
 // Обновление внутреннего состояния виджета
 func (w *Label) Update() {
-	if w.param.Hidden {
-		return
-	}
 	// Обновляем параметры виджета
 	if w.ParamSource != nil {
 		param := w.ParamSource()
@@ -255,7 +255,7 @@ func (w *Label) Size() image.Point {
 // Если изображение виджета обновилось, но не был вызван Render()
 // то возвращается true, иначе false
 func (w *Label) Updated() bool {
-	return w.textUpdated || w.baseUpdated || w.sizeUpdated
+	return w.textUpdated || w.baseUpdated || w.sizeUpdated || w.visibleUpdated
 }
 
 // Скрыть виджет

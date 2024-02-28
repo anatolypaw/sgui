@@ -246,9 +246,6 @@ func (w *Button) Click() {
 	}
 }
 func (w *Button) Update() {
-	if w.param.Hidden {
-		return
-	}
 
 	// Обновляем параметры виджета
 	if w.ParamSource != nil {
