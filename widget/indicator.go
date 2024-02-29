@@ -92,11 +92,6 @@ func (w *BitIndicator) Render() *image.RGBA {
 		slog.Error("No states for BitIndicator. Created empty state")
 	}
 
-	// Получаем статус индикатора с внешней функции
-	if w.stateLoader != nil {
-		w.SetState(w.stateLoader())
-	}
-
 	w.updated = false
 	return w.states[w.currentState].img
 }
@@ -135,4 +130,9 @@ func (w *BitIndicator) Hidden() bool {
 	return w.hidden
 }
 
-func (w *BitIndicator) Update() {}
+func (w *BitIndicator) Update() {
+	// Получаем статус индикатора с внешней функции
+	if w.stateLoader != nil {
+		w.SetState(w.stateLoader())
+	}
+}
