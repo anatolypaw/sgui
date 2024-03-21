@@ -40,11 +40,11 @@ func (w *rectangle) Render() *image.RGBA {
 }
 
 // Вызвать при нажатии
-func (w *rectangle) Tap() {
+func (w *rectangle) Tap(pos image.Point) {
 }
 
 // Вызвать при отпускании
-func (w *rectangle) Release() {
+func (w *rectangle) Release(pos image.Point) {
 }
 
 // Вызвывается когда предварительно нажатая кнопка была отпущенна
@@ -53,4 +53,9 @@ func (w *rectangle) Click() {
 
 func (w *rectangle) Size() image.Point {
 	return w.size
+}
+
+// Ловить все события
+func (w *rectangle) IsHookAllEvent() bool {
+	return false
 }

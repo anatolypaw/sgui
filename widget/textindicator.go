@@ -135,10 +135,10 @@ func (w *TextIndicator) Render() *image.RGBA {
 	return w.states[w.currentState]
 }
 
-func (w *TextIndicator) Tap() {
+func (w *TextIndicator) Tap(pos image.Point) {
 }
 
-func (w *TextIndicator) Release() {
+func (w *TextIndicator) Release(pos image.Point) {
 }
 
 func (w *TextIndicator) Size() image.Point {
@@ -170,3 +170,8 @@ func (w *TextIndicator) Hidden() bool {
 }
 
 func (w *TextIndicator) Update() {}
+
+// Ловить все события
+func (w *TextIndicator) IsHookAllEvent() bool {
+	return false
+}

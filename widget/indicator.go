@@ -96,10 +96,10 @@ func (w *BitIndicator) Render() *image.RGBA {
 	return w.states[w.currentState].img
 }
 
-func (w *BitIndicator) Tap() {
+func (w *BitIndicator) Tap(pos image.Point) {
 }
 
-func (w *BitIndicator) Release() {
+func (w *BitIndicator) Release(pos image.Point) {
 }
 
 func (w *BitIndicator) Size() image.Point {
@@ -135,4 +135,9 @@ func (w *BitIndicator) Update() {
 	if w.stateLoader != nil {
 		w.SetState(w.stateLoader())
 	}
+}
+
+// Ловить все события
+func (w *BitIndicator) IsHookAllEvent() bool {
+	return false
 }

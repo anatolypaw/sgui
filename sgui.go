@@ -63,23 +63,22 @@ func (ths *Sgui) StartInputEventHandler() {
 
 // Обрабатывает соыбытие ввода
 func (ths *Sgui) Event(event IEvent) {
-	switch event.(type) {
-	case EventTap:
-		go ths.TapHandler(event)
-	case EventRelease:
-		go ths.ReleaseHandler()
-	}
-
-}
-
-// Обработка нажатия
-// Ищем какой объект попал в точку нажатия и вызываем на нем
-// обработку нажатия
-func (ths *Sgui) TapHandler(event IEvent) {
 	for _, o := range ths.ActiveScreen.Objects {
 
 		// если виджет отключен или скрыт, не передаем ему событие
 		if o.Widget.Disabled() || o.Widget.Hidden() {
+			continue
+		}
+
+		// Если виджет перехватывает нажатие не зависимо от места клика
+		// Передать ему абсолютное значение клика
+		if o.Widget.IsHookAllEvent() {
+			switch event.(type) {
+			case EventTap:
+				go o.Widget.Tap(event.Position())
+			case EventRelease:
+				go o.Widget.Release(event.Position())
+			}
 			continue
 		}
 
@@ -92,18 +91,16 @@ func (ths *Sgui) TapHandler(event IEvent) {
 		)
 
 		// Если позиция тапа внутри виджета, то вызываем обработку тапа
-		if event.Position().In(wpos) {
-			o.Widget.Tap()
-			break
+		switch event.(type) {
+		case EventTap:
+			if event.Position().In(wpos) {
+				go o.Widget.Tap(event.Position())
+			}
+		case EventRelease:
+			go o.Widget.Release(event.Position())
 		}
 	}
-}
 
-// Обработка отпускания нажатия для всех виджетов
-func (ths *Sgui) ReleaseHandler() {
-	for _, o := range ths.ActiveScreen.Objects {
-		o.Widget.Release()
-	}
 }
 
 // Отрисовывает объекты на дисплей

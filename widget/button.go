@@ -219,7 +219,7 @@ func (w *Button) SetText(text string, size float64, color color.Color) {
 }
 
 // Вызвать при нажатии на кнопку
-func (w *Button) Tap() {
+func (w *Button) Tap(pos image.Point) {
 	if w.tapped {
 		return
 	}
@@ -230,7 +230,7 @@ func (w *Button) Tap() {
 }
 
 // Вызвать при отпускании кнопки
-func (w *Button) Release() {
+func (w *Button) Release(pos image.Point) {
 	if !w.tapped {
 		return
 	}
@@ -371,4 +371,9 @@ func (w *Button) Disabled() bool {
 
 func (w *Button) Hidden() bool {
 	return w.param.Hidden
+}
+
+// Ловить все события
+func (w *Button) IsHookAllEvent() bool {
+	return false
 }

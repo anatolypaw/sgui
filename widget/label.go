@@ -31,6 +31,11 @@ type Label struct {
 	ParamSource func() LabelParam
 }
 
+// Ловить все события
+func (w *Label) IsHookAllEvent() bool {
+	return false
+}
+
 type LabelParam struct {
 	Size            image.Point
 	Text            string
@@ -182,12 +187,12 @@ func (w *Label) Show() {
 }
 
 // Обработка нажатия на виджет
-func (w *Label) Tap() {
+func (w *Label) Tap(pos image.Point) {
 	// Игнорируем нажатие
 }
 
 // Обработка отпускания виджета
-func (w *Label) Release() {
+func (w *Label) Release(pos image.Point) {
 	// Игнорируем отпускание
 }
 
