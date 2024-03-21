@@ -361,6 +361,7 @@ func (w *Button) Show() {
 	if !w.param.Hidden {
 		return
 	}
+	w.stateUpdated = true
 	w.param.Hidden = false
 
 }

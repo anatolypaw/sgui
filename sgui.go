@@ -75,9 +75,9 @@ func (ths *Sgui) Event(event IEvent) {
 		if o.Widget.IsHookAllEvent() {
 			switch event.(type) {
 			case EventTap:
-				go o.Widget.Tap(event.Position())
+				o.Widget.Tap(event.Position())
 			case EventRelease:
-				go o.Widget.Release(event.Position())
+				o.Widget.Release(event.Position())
 			}
 			continue
 		}
