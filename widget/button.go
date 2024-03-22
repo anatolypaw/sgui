@@ -373,8 +373,3 @@ func (w *Button) Disabled() bool {
 func (w *Button) Hidden() bool {
 	return w.param.Hidden
 }
-
-// Ловить все события
-func (w *Button) IsHookAllEvent() bool {
-	return false
-}

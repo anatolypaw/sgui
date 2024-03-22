@@ -63,22 +63,18 @@ func (ths *Sgui) StartInputEventHandler() {
 
 // Обрабатывает соыбытие ввода
 func (ths *Sgui) Event(event IEvent) {
-	for _, o := range ths.ActiveScreen.Objects {
+	// Передача нажатия в хук экрана
+	if ths.ActiveScreen.TapHooker != nil {
+		switch event.(type) {
+		case EventTap:
+			ths.ActiveScreen.TapHooker(event.Position())
+		}
+	}
 
+	// Поиск видже в зоне нажатия и передача ему события
+	for _, o := range ths.ActiveScreen.Objects {
 		// если виджет отключен или скрыт, не передаем ему событие
 		if o.Widget.Disabled() || o.Widget.Hidden() {
-			continue
-		}
-
-		// Если виджет перехватывает нажатие не зависимо от места клика
-		// Передать ему абсолютное значение клика
-		if o.Widget.IsHookAllEvent() {
-			switch event.(type) {
-			case EventTap:
-				o.Widget.Tap(event.Position())
-			case EventRelease:
-				o.Widget.Release(event.Position())
-			}
 			continue
 		}
 

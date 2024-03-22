@@ -102,8 +102,3 @@ func (w *rectangle) Click() {
 func (w *rectangle) Size() image.Point {
 	return w.size
 }
-
-// Ловить все события
-func (w *rectangle) IsHookAllEvent() bool {
-	return false
-}

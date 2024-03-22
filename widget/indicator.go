@@ -136,8 +136,3 @@ func (w *BitIndicator) Update() {
 		w.SetState(w.stateLoader())
 	}
 }
-
-// Ловить все события
-func (w *BitIndicator) IsHookAllEvent() bool {
-	return false
-}

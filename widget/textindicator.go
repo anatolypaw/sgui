@@ -170,8 +170,3 @@ func (w *TextIndicator) Hidden() bool {
 }
 
 func (w *TextIndicator) Update() {}
-
-// Ловить все события
-func (w *TextIndicator) IsHookAllEvent() bool {
-	return false
-}
