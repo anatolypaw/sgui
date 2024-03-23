@@ -37,7 +37,13 @@ func (ths *Sgui) SetScreen(screen *Screen) {
 		ths.ActiveScreen.mu.Lock()
 		defer ths.ActiveScreen.mu.Unlock()
 	}
+
 	ths.ActiveScreen = screen
+
+	// Запускаем функцию, которая отрабатывает при ключении этого экрана
+	if screen.RunOnce != nil {
+		screen.RunOnce()
+	}
 
 }
 

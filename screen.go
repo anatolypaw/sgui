@@ -13,6 +13,7 @@ type Screen struct {
 	Background       *image.RGBA       // Изображение бэкграунда
 	Objects          []Object          // виджеты и их положение на дисплее
 	TapHooker        func(image.Point) // Если указан, то вызывается при нажатии в любом месте экрана
+	RunOnce          func()            // Запускается один раз при установке экрана активным
 	Size             image.Rectangle
 	BackgroundRefill bool
 	mu               sync.Mutex // Блокировка, когда идет работа с экраном.
