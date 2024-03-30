@@ -79,7 +79,10 @@ func NewButton(p *ButtonParam, ps func() ButtonParam) *Button {
 
 // Установка параметров виджета
 func (w *Button) SetParam(p ButtonParam) {
-	w.param.Hidden = p.Hidden
+	if w.param.Hidden != p.Hidden {
+		w.param.Hidden = p.Hidden
+		w.stateUpdated = true
+	}
 	w.param.OnClick = p.OnClick
 
 	w.SetSize(p.Size)
