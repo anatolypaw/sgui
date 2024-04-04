@@ -136,10 +136,6 @@ func (ths *Sgui) Render() {
 		ths.DrawObject(&o)
 	}
 
-	if ths.ActiveScreen.BackgroundRefill {
-		ths.ActiveScreen.BackgroundRefill = false
-	}
-
 	// Отрисовываем оверлей
 	if ths.Overlay == nil {
 		return
@@ -150,6 +146,10 @@ func (ths *Sgui) Render() {
 	// Отрисовка на дисплей объектов с экрана, в порядке их добавления
 	for _, o := range ths.Overlay.Objects {
 		ths.DrawObject(&o)
+	}
+
+	if ths.ActiveScreen.BackgroundRefill {
+		ths.ActiveScreen.BackgroundRefill = false
 	}
 
 }
