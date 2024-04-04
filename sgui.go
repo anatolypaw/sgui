@@ -14,6 +14,7 @@ type Sgui struct {
 	Display      *image.RGBA //
 	InputDevice  IInput      // Устройство ввода
 	ActiveScreen *Screen     // Активный экран, который будет обрабатываться
+	Overlay      *Overlay    // Отрисовывается поверх всех экранов, не
 }
 
 // Интерфейс устройства ввода
@@ -47,6 +48,17 @@ func (ths *Sgui) SetScreen(screen *Screen) {
 
 }
 
+// Устанавливает оверлей
+func (ths *Sgui) SetOverlay(overlay *Overlay) {
+	// Ждем, когда завершится обработка действующего экрана
+	if ths.Overlay != nil {
+		ths.Overlay.mu.Lock()
+		defer ths.Overlay.mu.Unlock()
+	}
+
+	ths.Overlay = overlay
+}
+
 // Возвращает размер дисплея
 func (ths *Sgui) SizeDisplay() image.Rectangle {
 	return ths.Display.Bounds()
@@ -77,7 +89,7 @@ func (ths *Sgui) Event(event IEvent) {
 		}
 	}
 
-	// Поиск видже в зоне нажатия и передача ему события
+	// Поиск виджетов в зоне нажатия и передача ему события
 	for _, o := range ths.ActiveScreen.Objects {
 		// если виджет отключен или скрыт, не передаем ему событие
 		if o.Widget.Disabled() || o.Widget.Hidden() {
@@ -121,34 +133,49 @@ func (ths *Sgui) Render() {
 
 	// Отрисовка на дисплей объектов с экрана, в порядке их добавления
 	for _, o := range ths.ActiveScreen.Objects {
-
-		// Обновление внутреннего состояния виджета
-		o.Widget.Update()
-
-		// Если изображение виджета не менялось,
-		// то и перерисовывать его не нужно. Пропускаем этот виджет
-		// Если была отрисовка бэкграунда, то виджет нужно снова отрисовать
-		if !o.Widget.Updated() && !ths.ActiveScreen.BackgroundRefill {
-			continue
-		}
-
-		wr := o.Widget.Render()
-
-		if wr == nil {
-			log.Println("SGUI: Widget render error - no render")
-			continue
-		}
-
-		draw.Draw(
-			ths.Display,
-			ths.Display.Bounds(),
-			wr,
-			image.Point{-o.Position.X, -o.Position.Y},
-			draw.Src)
+		ths.DrawObject(&o)
 	}
 
 	if ths.ActiveScreen.BackgroundRefill {
 		ths.ActiveScreen.BackgroundRefill = false
 	}
 
+	// Отрисовываем оверлей
+	if ths.Overlay == nil {
+		return
+	}
+	ths.Overlay.mu.Lock()
+	defer ths.Overlay.mu.Unlock()
+
+	// Отрисовка на дисплей объектов с экрана, в порядке их добавления
+	for _, o := range ths.Overlay.Objects {
+		ths.DrawObject(&o)
+	}
+
+}
+
+func (ths *Sgui) DrawObject(o *Object) {
+	// Обновление внутреннего состояния виджета
+	o.Widget.Update()
+
+	// Если изображение виджета не менялось,
+	// то и перерисовывать его не нужно. Пропускаем этот виджет
+	// Если была отрисовка бэкграунда, то виджет нужно снова отрисовать
+	if !o.Widget.Updated() && !ths.ActiveScreen.BackgroundRefill {
+		return
+	}
+
+	wr := o.Widget.Render()
+
+	if wr == nil {
+		log.Println("SGUI: Widget render error - no render")
+		return
+	}
+
+	draw.Draw(
+		ths.Display,
+		ths.Display.Bounds(),
+		wr,
+		image.Point{-o.Position.X, -o.Position.Y},
+		draw.Src)
 }
