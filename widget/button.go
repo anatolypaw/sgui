@@ -40,6 +40,13 @@ type Button struct {
 	// если какой то из новых полученных параметров будет отличаться от текущих,
 	// то он будет применен
 	ParamSource func() ButtonParam
+
+	// Счетчик того, сколько раз рендер вернул изображение нажатой кнопки
+	// При быстром нажатии и отпускании кнопки, рендер может не попасть на момент,
+	// когда кнопка была нажата и визуально нажатия не будет
+	// поэтому считаем, сколько раз отобразилось нажатое состояние и показываем его
+	// пока не насчитаем нужно значение (указано в функции рендера)
+	TapShowCounter uint
 }
 
 type ButtonParam struct {
@@ -227,6 +234,7 @@ func (w *Button) Tap(pos image.Point) {
 		return
 	}
 
+	w.TapShowCounter = 3
 	w.tapped = true
 	w.stateUpdated = true
 
@@ -249,12 +257,20 @@ func (w *Button) Click() {
 	}
 }
 func (w *Button) Update() {
-
 	// Обновляем параметры виджета
 	if w.ParamSource != nil {
 		param := w.ParamSource()
 		w.SetParam(param)
+	}
 
+	// Обновляем счетчик рендеров нажатого состояния
+	if w.TapShowCounter > 0 {
+		w.TapShowCounter--
+
+		// Произошло последнее уменьшение, отметить кнопку, изменившей изображение
+		if w.TapShowCounter == 0 {
+			w.stateUpdated = true
+		}
 	}
 }
 
@@ -329,9 +345,12 @@ func (w *Button) Render() *image.RGBA {
 		return w.backgroundRender
 	}
 
-	if w.tapped {
+	// Рендер нажатого состояния
+	// Выдает рендер нажатой кнопки, пока не будет показано заданное кол-во показов (в функции tap)
+	if w.tapped || w.TapShowCounter > 0 {
 		return w.finalPressedRender
 	}
+
 	return w.finalRelesedRender
 
 }
